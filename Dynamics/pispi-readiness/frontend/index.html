@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/index.css" />
+    <title>afrIAgenesis® — PI-SPI Readiness Platform</title>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="logo">
+      <div class="logo-icon">A</div>
+      <div>
+        <div class="logo-text">afrIAgenesis<span class="gold">®</span></div>
+        <div class="logo-sub">PI-SPI Readiness Platform™</div>
+      </div>
+    </div>
+    <div class="badge-live">
+      <span class="dot"></span> Live
+    </div>
+  </header>
+
+  <main class="main">
+
+    <section class="countdown-section">
+      <div class="deadline-label">Deadline BCEAO — Temps restant</div>
+      <div class="countdown">
+        <div class="cd-block">
+          <div class="cd-num" id="days">00</div>
+          <div class="cd-lbl">Jours</div>
+        </div>
+        <div class="cd-sep">:</div>
+        <div class="cd-block">
+          <div class="cd-num" id="hours">00</div>
+          <div class="cd-lbl">Heures</div>
+        </div>
+        <div class="cd-sep">:</div>
+        <div class="cd-block">
+          <div class="cd-num" id="minutes">00</div>
+          <div class="cd-lbl">Min</div>
+        </div>
+        <div class="cd-sep">:</div>
+        <div class="cd-block">
+          <div class="cd-num" id="seconds">00</div>
+          <div class="cd-lbl">Sec</div>
+        </div>
+      </div>
+      <div class="deadline-note">
+        Échéance officielle : <span class="gold">30 juin 2026 — 00:00 UTC</span>
+      </div>
+    </section>
+
+    <section class="stats-row">
+      <div class="stat">
+        <div class="stat-num">80</div>
+        <div class="stat-lbl">Participants connectés</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">42</div>
+        <div class="stat-lbl">En phase de tests</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">8</div>
+        <div class="stat-lbl">Pays UEMOA</div>
+      </div>
+    </section>
+
+    <section class="cta-row">
+      <a href="assessment.html?type=participant" class="cta cta-a">
+        <i class="fa-solid fa-building-columns cta-icon"></i>
+        <div class="cta-title">Je suis une banque / EME / EP</div>
+        <div class="cta-sub">Parcours A — Participant PI-SPI</div>
+        <div class="cta-arrow">Évaluer ma conformité →</div>
+      </a>
+      <a href="assessment.html?type=business" class="cta cta-b">
+        <i class="fa-solid fa-briefcase cta-icon"></i>
+        <div class="cta-title">Je suis une entreprise</div>
+        <div class="cta-sub">Parcours B — Business API</div>
+        <div class="cta-arrow">Tester mon intégration →</div>
+      </a>
+    </section>
+
+    <section class="progress-section">
+      <div class="prog-header">
+        <span class="prog-title">Adoption PI-SPI UEMOA</span>
+        <span class="prog-count">80 / 122 établissements</span>
+      </div>
+      <div class="prog-bar">
+        <div class="prog-fill" style="width: 65.6%"></div>
+      </div>
+      <div class="prog-labels">
+        <span>0</span>
+        <span>65.6% connectés</span>
+        <span>122</span>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>afrIAgenesis® — CEA Consulting SAS — Cotonou, Bénin</p>
+    <p>Cette plateforme est un outil de diagnostic. Aucun paiement réel n'est traité.</p>
+  </footer>
+
+  <script src="scripts/date-time.js"></script>
+  <script src="scripts/index.js"></script>
+
+</body>
+</html>
