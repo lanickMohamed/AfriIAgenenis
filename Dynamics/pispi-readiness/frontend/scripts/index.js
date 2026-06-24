@@ -57,7 +57,7 @@ const ALL_CRITERIA = [
   { id: 'infra_sandbox', name: 'Tests sandbox BCEAO réussis',        weight: 10, cat: 'Technique'     },
   { id: 'reg_dossier',   name: 'Dossier de connexion BCEAO soumis',  weight: 10, cat: 'Réglementaire' },
   { id: 'reg_kyc',       name: 'KYC & LCB-FT adapté PI-SPI',        weight: 10, cat: 'Réglementaire' },
-  { id: 'reg_sla',       name: 'SLA < 5 secondes documenté',         weight:  5, cat: 'Réglementaire' },
+  { id: 'reg_sla',       name: 'SLA < 10 secondes documenté',         weight:  5, cat: 'Réglementaire' },
   { id: 'reg_incident',  name: 'Plan de gestion des incidents',      weight:  5, cat: 'Réglementaire' },
   { id: 'org_equipe',    name: 'Équipe projet PI-SPI désignée',      weight:  5, cat: 'Gouvernance'   },
   { id: 'org_formation', name: 'Formation des équipes réalisée',     weight:  3, cat: 'Gouvernance'   },
@@ -202,7 +202,25 @@ function openPdfModal()  { document.getElementById('pdf-modal').style.display = 
 function closePdfModal() { document.getElementById('pdf-modal').style.display = 'none'; }
 
 
-// FIX 3 — validation du modal avant génération PDF
+function makeRoundImage(dataUrl, size) {
+  const canvas = document.createElement('canvas');
+  canvas.width  = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+  return new Promise(resolve => {
+    img.onload = () => {
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
+      ctx.drawImage(img, 0, 0, size, size);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.src = dataUrl;
+  });
+}
+
 function generatePDF() {
   const institutionInput = document.getElementById('pdf-institution');
   const institution = institutionInput.value.trim();
@@ -210,7 +228,7 @@ function generatePDF() {
   if (!institution) {
     institutionInput.style.borderColor = 'var(--danger)';
     institutionInput.focus();
-    institutionInput.placeholder = '⚠ Ce champ est obligatoire';
+    institutionInput.placeholder = 'Ce champ est obligatoire';
     setTimeout(() => {
       institutionInput.style.borderColor = '';
       institutionInput.placeholder = 'Ex : Banque de l\'Afrique Solidaire';
@@ -249,172 +267,205 @@ function generatePDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const W = 210, M = 18;
-
-  // FIX 4 — logo afrIAgenesis en page 1
   const logoUrl = 'https://raw.githubusercontent.com/lanickMohamed/AfriIAgenenis/main/assets/images/logo.jpg';
-  const addPages = (logoDataUrl) => {
 
-    // ── PAGE 1 ──────────────────────────────────────────────
-    doc.setFillColor(255,255,255); doc.rect(0,0,W,297,'F');
-    doc.setFillColor(212,168,83);  doc.rect(0,0,W,12,'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(255,255,255);
-    doc.text('afrIAgenesis(r)', M, 8);
-    doc.setFont('helvetica','normal'); doc.setFontSize(8);
-    doc.text('Ref: '+refNum+'   |   CONFIDENTIEL', W-M, 8, {align:'right'});
+  // Dessine le header gold avec logo rond + texte sur toutes les pages
+  // logoRound  : dataUrl PNG circulaire
+  // logoSize   : taille mm du logo dans le header (grand sur p1, petit sur p2/p3)
+  // headerText : texte à gauche après le logo
+  // rightText  : texte à droite (ref ou numéro de page)
+  function drawHeader(logoRound, logoSize, headerText, rightText) {
+    const logoX    = M;
+    const logoY    = (12 - logoSize) / 2;        // centré verticalement dans la barre de 12mm
+    const textX    = M + logoSize + 3;            // texte juste après le logo + 3mm de gap
+    const textY    = 8;
 
-    // Logo rond page 1
-    if (logoDataUrl) {
-      doc.addImage(logoDataUrl, 'JPEG', W-M-22, 18, 22, 22);
+    doc.setFillColor(212, 168, 83);
+    doc.rect(0, 0, W, 12, 'F');
+
+    if (logoRound) {
+      doc.addImage(logoRound, 'PNG', logoX, logoY, logoSize, logoSize);
     }
 
-    doc.setFont('helvetica','bold'); doc.setFontSize(32); doc.setTextColor(20,20,20);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(255, 255, 255);
+    doc.text(headerText, textX, textY);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(255, 255, 255);
+    doc.text(rightText, W - M, textY, { align: 'right' });
+  }
+
+  const addPages = async (logoDataUrl) => {
+    const roundLogo = logoDataUrl ? await makeRoundImage(logoDataUrl, 200) : null;
+
+    // ── PAGE 1 ──────────────────────────────────────────────
+    doc.setFillColor(255, 255, 255); doc.rect(0, 0, W, 297, 'F');
+
+    // header p1 : logo 10mm, texte "afrIAgenesis(r)", ref à droite
+    drawHeader(roundLogo, 10, 'afrIAgenesis(r)', 'Ref: ' + refNum + '   |   CONFIDENTIEL');
+
+
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(32); doc.setTextColor(20, 20, 20);
     doc.text('RAPPORT DE', M, 38); doc.text('CONFORMITE', M, 52);
-    doc.setTextColor(180,120,20); doc.text('PI-SPI', M, 66);
-    doc.setDrawColor(212,168,83); doc.setLineWidth(1); doc.line(M,72,120,72);
-    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(80,80,80);
+    doc.setTextColor(180, 120, 20); doc.text('PI-SPI', M, 66);
+    doc.setDrawColor(212, 168, 83); doc.setLineWidth(1); doc.line(M, 72, 120, 72);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(80, 80, 80);
     doc.text('Plateforme Interoperable du Systeme de Paiement Instantane', M, 80);
     doc.text("Banque Centrale des Etats de l'Afrique de l'Ouest (BCEAO)", M, 87);
-    const cx=168,cy=52,r=24;
-    doc.setFillColor(...tierBg); doc.circle(cx,cy,r,'F');
-    doc.setDrawColor(...tierColor); doc.setLineWidth(2); doc.circle(cx,cy,r,'S');
-    doc.setFont('helvetica','bold'); doc.setFontSize(22); doc.setTextColor(...tierColor);
-    doc.text(String(score),cx,cy+4,{align:'center'});
-    doc.setFontSize(8); doc.setTextColor(80,80,80); doc.text('/100',cx,cy+11,{align:'center'});
-    doc.setFillColor(...tierColor); doc.roundedRect(cx-20,cy+16,40,8,2,2,'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(255,255,255);
-    const tierShort = score>=70?'PRET':score>=40?'PARTIEL':'CRITIQUE';
-    doc.text(tierShort,cx,cy+21,{align:'center'});
-    doc.setFillColor(248,248,248); doc.roundedRect(M,96,W-2*M,52,3,3,'F');
-    doc.setDrawColor(212,168,83); doc.setLineWidth(0.5); doc.line(M,96,M,148);
-    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(180,120,20);
-    doc.text('INSTITUTION EVALUEE',M+6,105);
-    doc.setFontSize(13); doc.setTextColor(20,20,20);
-    doc.text(institution.length>45?institution.substring(0,45)+'...':institution, M+6,115);
-    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(100,100,100);
-    doc.text(type+' — '+pays, M+6,122);
-    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(180,120,20);
-    doc.text('PREPARE POUR',M+6,133);
-    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(20,20,20);
-    doc.text(contact,M+6,141);
-    doc.setFillColor(254,226,226); doc.roundedRect(M,158,W-2*M,20,3,3,'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(185,28,28);
-    doc.text('DEADLINE REGLEMENTAIRE BCEAO : 30 juin 2026',M+6,166);
-    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(100,20,20);
-    doc.text('Connexion obligatoire — '+daysLeft+' jours restants',M+6,173);
-    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(120,120,120);
-    doc.text('Rapport genere le : '+dateStr, M, 188);
-    doc.setFillColor(212,168,83); doc.rect(0,285,W,12,'F');
-    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(255,255,255);
-    doc.text('+229 01 61 10 73 73  |  lanickconsult@gmail.com', W/2,293,{align:'center'});
+
+    const cx = 168, cy = 52, r = 24;
+    doc.setFillColor(...tierBg); doc.circle(cx, cy, r, 'F');
+    doc.setDrawColor(...tierColor); doc.setLineWidth(2); doc.circle(cx, cy, r, 'S');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(22); doc.setTextColor(...tierColor);
+    doc.text(String(score), cx, cy + 4, { align: 'center' });
+    doc.setFontSize(8); doc.setTextColor(80, 80, 80); doc.text('/100', cx, cy + 11, { align: 'center' });
+    doc.setFillColor(...tierColor); doc.roundedRect(cx - 20, cy + 16, 40, 8, 2, 2, 'F');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(255, 255, 255);
+    const tierShort = score >= 70 ? 'PRET' : score >= 40 ? 'PARTIEL' : 'CRITIQUE';
+    doc.text(tierShort, cx, cy + 21, { align: 'center' });
+
+    doc.setFillColor(248, 248, 248); doc.roundedRect(M, 96, W - 2 * M, 52, 3, 3, 'F');
+    doc.setDrawColor(212, 168, 83); doc.setLineWidth(0.5); doc.line(M, 96, M, 148);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(180, 120, 20);
+    doc.text('INSTITUTION EVALUEE', M + 6, 105);
+    doc.setFontSize(13); doc.setTextColor(20, 20, 20);
+    doc.text(institution.length > 45 ? institution.substring(0, 45) + '...' : institution, M + 6, 115);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(100, 100, 100);
+    doc.text(type + ' — ' + pays, M + 6, 122);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(180, 120, 20);
+    doc.text('PREPARE POUR', M + 6, 133);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(20, 20, 20);
+    doc.text(contact, M + 6, 141);
+
+    doc.setFillColor(254, 226, 226); doc.roundedRect(M, 158, W - 2 * M, 20, 3, 3, 'F');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(185, 28, 28);
+    doc.text('DEADLINE REGLEMENTAIRE BCEAO : 30 juin 2026', M + 6, 166);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(100, 20, 20);
+    doc.text('Connexion obligatoire — ' + daysLeft + ' jours restants', M + 6, 173);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(120, 120, 120);
+    doc.text('Rapport genere le : ' + dateStr, M, 188);
+
+    doc.setFillColor(212, 168, 83); doc.rect(0, 285, W, 12, 'F');
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(255, 255, 255);
+    doc.text('+229 01 61 10 73 73  |  lanickconsult@gmail.com', W / 2, 293, { align: 'center' });
 
     // ── PAGE 2 ──────────────────────────────────────────────
     doc.addPage();
-    doc.setFillColor(255,255,255); doc.rect(0,0,W,297,'F');
-    doc.setFillColor(212,168,83); doc.rect(0,0,W,12,'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(255,255,255);
-    doc.text('afrIAgenesis(r) — PI-SPI Readiness Checker',M,8);
-    doc.setFont('helvetica','normal'); doc.setFontSize(8);
-    doc.text('Page 2/3',W-M,8,{align:'right'});
-    if (logoDataUrl) doc.addImage(logoDataUrl, 'JPEG', W-M-10, 1, 10, 10);
-    let y=22;
-    doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(20,20,20);
-    doc.text('SYNTHESE EXECUTIVE',M,y); y+=5;
-    doc.setDrawColor(212,168,83); doc.setLineWidth(0.8); doc.line(M,y,W-M,y); y+=8;
-    doc.setFillColor(...tierBg); doc.roundedRect(M,y,W-2*M,28,3,3,'F');
-    doc.setFillColor(...tierColor); doc.rect(M,y,5,28,'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...tierColor);
-    doc.text('SCORE GLOBAL DE CONFORMITE PI-SPI',M+10,y+9);
-    doc.setFontSize(24); doc.setTextColor(20,20,20);
-    doc.text(score+'/100',M+10,y+23);
+    doc.setFillColor(255, 255, 255); doc.rect(0, 0, W, 297, 'F');
+
+    drawHeader(roundLogo, 10, 'afrIAgenesis(r) — PI-SPI Readiness Checker', 'Page 2/3');
+
+    let y = 22;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.setTextColor(20, 20, 20);
+    doc.text('SYNTHESE EXECUTIVE', M, y); y += 5;
+    doc.setDrawColor(212, 168, 83); doc.setLineWidth(0.8); doc.line(M, y, W - M, y); y += 8;
+
+    doc.setFillColor(...tierBg); doc.roundedRect(M, y, W - 2 * M, 28, 3, 3, 'F');
+    doc.setFillColor(...tierColor); doc.rect(M, y, 5, 28, 'F');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(...tierColor);
+    doc.text('SCORE GLOBAL DE CONFORMITE PI-SPI', M + 10, y + 9);
+    doc.setFontSize(24); doc.setTextColor(20, 20, 20);
+    doc.text(score + '/100', M + 10, y + 23);
     doc.setFontSize(10); doc.setTextColor(...tierColor);
-    doc.text(tierLabel,M+55,y+23); y+=36;
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(180,120,20);
-    doc.text('VERDICT',M,y); y+=6;
-    doc.setFillColor(252,252,248); doc.roundedRect(M,y,W-2*M,22,2,2,'F');
-    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(40,40,40);
-    doc.text(doc.splitTextToSize(recommendation,W-2*M-10),M+6,y+7); y+=30;
-    const domains=[
-      {label:'Infrastructure\ntechnique',  max:60, ids:['infra_api','infra_mtls','infra_oauth','infra_sandbox']},
-      {label:'Conformite\nreglementaire',  max:30, ids:['reg_dossier','reg_kyc','reg_sla','reg_incident']},
-      {label:'Gouvernance\norganisation',  max:10, ids:['org_equipe','org_formation','org_budget']},
+    doc.text(tierLabel, M + 55, y + 23); y += 36;
+
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(180, 120, 20);
+    doc.text('VERDICT', M, y); y += 6;
+    doc.setFillColor(252, 252, 248); doc.roundedRect(M, y, W - 2 * M, 22, 2, 2, 'F');
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(40, 40, 40);
+    doc.text(doc.splitTextToSize(recommendation, W - 2 * M - 10), M + 6, y + 7); y += 30;
+
+    const domains = [
+      { label: 'Infrastructure\ntechnique',  max: 60, ids: ['infra_api', 'infra_mtls', 'infra_oauth', 'infra_sandbox'] },
+      { label: 'Conformite\nreglementaire',  max: 30, ids: ['reg_dossier', 'reg_kyc', 'reg_sla', 'reg_incident'] },
+      { label: 'Gouvernance\norganisation',  max: 10, ids: ['org_equipe', 'org_formation', 'org_budget'] },
     ];
-    const colW=(W-2*M-8)/3;
-    domains.forEach((d,i)=>{
-      const ds=d.ids.reduce((a,id)=>a+(scores[id]||0),0);
-      const pct=Math.round((ds/d.max)*100);
-      const col=pct>=70?[22,163,74]:pct>=40?[180,83,9]:[185,28,28];
-      const bg =pct>=70?[220,252,231]:pct>=40?[254,243,199]:[254,226,226];
-      const ox=M+i*(colW+4);
-      doc.setFillColor(...bg); doc.roundedRect(ox,y,colW,30,3,3,'F');
-      doc.setFont('helvetica','bold'); doc.setFontSize(18); doc.setTextColor(...col);
-      doc.text(ds+'/'+d.max,ox+colW/2,y+14,{align:'center'});
-      doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(80,80,80);
-      doc.text(doc.splitTextToSize(d.label,colW-4),ox+colW/2,y+22,{align:'center'});
-    }); y+=38;
-    doc.setFillColor(255,251,235); doc.roundedRect(M,y,W-2*M,26,3,3,'F');
-    doc.setDrawColor(212,168,83); doc.setLineWidth(0.8); doc.roundedRect(M,y,W-2*M,26,3,3,'S');
-    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(180,120,20);
-    doc.text(offerName,M+8,y+10);
-    doc.setFontSize(10); doc.setTextColor(20,20,20); doc.text(offerPrice,W-M-8,y+10,{align:'right'});
-    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(80,80,80);
-    doc.text(offerDesc,M+8,y+20); y+=34;
-    doc.setFillColor(212,168,83); doc.roundedRect(M,y,W-2*M,18,3,3,'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(255,255,255);
-    doc.text('Contacter afrIAgenesis(r) maintenant',W/2,y+8,{align:'center'});
-    doc.setFont('helvetica','normal'); doc.setFontSize(8);
-    doc.text('+229 01 61 10 73 73  |  lanickconsult@gmail.com',W/2,y+15,{align:'center'});
-    doc.setFillColor(212,168,83); doc.rect(0,285,W,12,'F');
-    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(255,255,255);
-    doc.text('Page 2/3 — '+dateStr,W-M,293,{align:'right'});
+    const colW = (W - 2 * M - 8) / 3;
+    domains.forEach((d, i) => {
+      const ds  = d.ids.reduce((a, id) => a + (scores[id] || 0), 0);
+      const pct = Math.round((ds / d.max) * 100);
+      const col = pct >= 70 ? [22, 163, 74] : pct >= 40 ? [180, 83, 9] : [185, 28, 28];
+      const bg  = pct >= 70 ? [220, 252, 231] : pct >= 40 ? [254, 243, 199] : [254, 226, 226];
+      const ox  = M + i * (colW + 4);
+      doc.setFillColor(...bg); doc.roundedRect(ox, y, colW, 30, 3, 3, 'F');
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(...col);
+      doc.text(ds + '/' + d.max, ox + colW / 2, y + 14, { align: 'center' });
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(80, 80, 80);
+      doc.text(doc.splitTextToSize(d.label, colW - 4), ox + colW / 2, y + 22, { align: 'center' });
+    }); y += 38;
+
+    doc.setFillColor(255, 251, 235); doc.roundedRect(M, y, W - 2 * M, 26, 3, 3, 'F');
+    doc.setDrawColor(212, 168, 83); doc.setLineWidth(0.8); doc.roundedRect(M, y, W - 2 * M, 26, 3, 3, 'S');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(180, 120, 20);
+    doc.text(offerName, M + 8, y + 10);
+    doc.setFontSize(10); doc.setTextColor(20, 20, 20); doc.text(offerPrice, W - M - 8, y + 10, { align: 'right' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(80, 80, 80);
+    doc.text(offerDesc, M + 8, y + 20); y += 34;
+
+    doc.setFillColor(212, 168, 83); doc.roundedRect(M, y, W - 2 * M, 18, 3, 3, 'F');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(255, 255, 255);
+    doc.text('Contacter afrIAgenesis(r) maintenant', W / 2, y + 8, { align: 'center' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+    doc.text('+229 01 61 10 73 73  |  lanickconsult@gmail.com', W / 2, y + 15, { align: 'center' });
+
+    doc.setFillColor(212, 168, 83); doc.rect(0, 285, W, 12, 'F');
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(255, 255, 255);
+    doc.text('Page 2/3 — ' + dateStr, W - M, 293, { align: 'right' });
 
     // ── PAGE 3 ──────────────────────────────────────────────
     doc.addPage();
-    doc.setFillColor(255,255,255); doc.rect(0,0,W,297,'F');
-    doc.setFillColor(212,168,83); doc.rect(0,0,W,12,'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(255,255,255);
-    doc.text('afrIAgenesis(r) — Rapport Technique',M,8);
-    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.text('Page 3/3',W-M,8,{align:'right'});
-    if (logoDataUrl) doc.addImage(logoDataUrl, 'JPEG', W-M-10, 1, 10, 10);
-    y=22;
-    doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(20,20,20);
-    doc.text('RAPPORT TECHNIQUE DETAILLE',M,y); y+=8;
-    doc.setDrawColor(212,168,83); doc.setLineWidth(0.8); doc.line(M,y,W-M,y); y+=8;
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(180,120,20);
-    doc.text("DETAIL DES "+ALL_CRITERIA.length+" CRITERES D'EVALUATION",M,y); y+=6;
-    doc.setFillColor(30,30,30); doc.rect(M,y,W-2*M,8,'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(255,255,255);
-    doc.text('STATUT',M+4,y+5.5); doc.text('CRITERE',M+32,y+5.5);
-    doc.text('CATEGORIE',M+122,y+5.5); doc.text('POIDS',W-M-12,y+5.5); y+=8;
-    ALL_CRITERIA.forEach((c,i)=>{
-      const ok=!!scores[c.id];
-      doc.setFillColor(...(i%2===0?[250,250,250]:[255,255,255])); doc.rect(M,y,W-2*M,9,'F');
-      doc.setDrawColor(220,220,220); doc.setLineWidth(0.2); doc.line(M,y+9,W-M,y+9);
-      doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
-      if(ok){doc.setTextColor(22,163,74); doc.text('CONFORME',M+4,y+6);}
-      else  {doc.setTextColor(185,28,28); doc.text('GAP',M+4,y+6);}
-      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(30,30,30);
-      doc.text(c.name,M+32,y+6);
-      doc.setFontSize(7); doc.setTextColor(100,100,100); doc.text(c.cat,M+122,y+6);
-      doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(180,120,20);
-      doc.text(c.weight+'pts',W-M-14,y+6); y+=9;
-    });
-    doc.setFillColor(212,168,83); doc.rect(0,285,W,12,'F');
-    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(255,255,255);
-    doc.text('afrIAgenesis(r) | CEA Consulting SAS',M,293);
-    doc.text('Page 3/3 — '+dateStr,W-M,293,{align:'right'});
+    doc.setFillColor(255, 255, 255); doc.rect(0, 0, W, 297, 'F');
 
-    const filename='PISPI-Rapport-'+institution.replace(/[^a-zA-Z0-9]/g,'-').substring(0,30)+'-'+now.getFullYear()+'.pdf';
+    drawHeader(roundLogo, 10, 'afrIAgenesis(r) — Rapport Technique', 'Page 3/3');
+
+    y = 22;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.setTextColor(20, 20, 20);
+    doc.text('RAPPORT TECHNIQUE DETAILLE', M, y); y += 8;
+    doc.setDrawColor(212, 168, 83); doc.setLineWidth(0.8); doc.line(M, y, W - M, y); y += 8;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(180, 120, 20);
+    doc.text("DETAIL DES " + ALL_CRITERIA.length + " CRITERES D'EVALUATION", M, y); y += 6;
+
+    doc.setFillColor(30, 30, 30); doc.rect(M, y, W - 2 * M, 8, 'F');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(255, 255, 255);
+    doc.text('STATUT', M + 4, y + 5.5);
+    doc.text('CRITERE', M + 32, y + 5.5);
+    doc.text('CATEGORIE', M + 122, y + 5.5);
+    doc.text('POIDS', W - M - 12, y + 5.5); y += 8;
+
+    ALL_CRITERIA.forEach((c, i) => {
+      const ok = !!scores[c.id];
+      doc.setFillColor(...(i % 2 === 0 ? [250, 250, 250] : [255, 255, 255]));
+      doc.rect(M, y, W - 2 * M, 9, 'F');
+      doc.setDrawColor(220, 220, 220); doc.setLineWidth(0.2); doc.line(M, y + 9, W - M, y + 9);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5);
+      if (ok) { doc.setTextColor(22, 163, 74);  doc.text('CONFORME', M + 4, y + 6); }
+      else    { doc.setTextColor(185, 28, 28);  doc.text('GAP',      M + 4, y + 6); }
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(30, 30, 30);
+      doc.text(c.name, M + 32, y + 6);
+      doc.setFontSize(7); doc.setTextColor(100, 100, 100); doc.text(c.cat, M + 122, y + 6);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(180, 120, 20);
+      doc.text(c.weight + 'pts', W - M - 14, y + 6); y += 9;
+    });
+
+    doc.setFillColor(212, 168, 83); doc.rect(0, 285, W, 12, 'F');
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(255, 255, 255);
+    doc.text('afrIAgenesis(r) | CEA Consulting SAS', M, 293);
+    doc.text('Page 3/3 — ' + dateStr, W - M, 293, { align: 'right' });
+
+    const filename = 'PISPI-Rapport-' + institution.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 30) + '-' + now.getFullYear() + '.pdf';
     doc.save(filename);
     closePdfModal();
   };
 
-  // FIX 4 — chargement du logo via fetch + FileReader pour contourner CORS jsPDF
   fetch(logoUrl)
     .then(r => r.blob())
     .then(blob => {
       const reader = new FileReader();
       reader.onloadend = () => addPages(reader.result);
-      reader.onerror  = ()  => addPages(null);
+      reader.onerror  = () => addPages(null);
       reader.readAsDataURL(blob);
     })
     .catch(() => addPages(null));
