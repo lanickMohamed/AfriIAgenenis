@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+    :root {
+      --gold: #D4A853;
+      --gold-light: #F0C96E;
+      --dark: #0A0E1A;
+      --dark-2: #111827;
+      --dark-3: #1C2536;
+      --card: #161D2F;
+      --border: rgba(212,168,83,0.2);
+      --text: #E8EAF0;
+      --text-muted: #8892A4;
+      --success: #22C55E;
+      --warning: #F59E0B;
+      --danger: #EF4444;
+      --accent: #3B82F6;
+      --radius: 12px;
+    }

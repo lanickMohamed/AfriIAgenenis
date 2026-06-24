@@ -4,1309 +4,420 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PI-SPI Readiness Checker™ — afrIAgenesis®</title>
-  <link rel="icon" type="image/png" href="../assets/images/logo.png" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
-
-    :root {
-      --gold: #D4A853;
-      --gold-light: #F0C96E;
-      --dark: #0A0E1A;
-      --dark-2: #111827;
-      --dark-3: #1C2536;
-      --card: #161D2F;
-      --border: rgba(212,168,83,0.2);
-      --text: #E8EAF0;
-      --text-muted: #8892A4;
-      --success: #22C55E;
-      --warning: #F59E0B;
-      --danger: #EF4444;
-      --accent: #3B82F6;
-      --radius: 12px;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Space Grotesk', sans-serif;
-      background: var(--dark);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* ── NAV ── */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      background: rgba(10,14,26,0.95);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
-      padding: 0 2rem;
-      height: 64px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .nav-logo {
-      display: flex; align-items: center; gap: 10px;
-      font-weight: 700; font-size: 1rem; color: var(--gold);
-    }
-    .nav-logo span { color: var(--text); font-weight: 400; }
-    .nav-countdown {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.8rem; color: var(--danger);
-      background: rgba(239,68,68,0.1);
-      border: 1px solid rgba(239,68,68,0.3);
-      padding: 6px 14px; border-radius: 999px;
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
-
-    /* ── HERO ── */
-    .hero {
-      min-height: 100vh;
-      padding: 100px 2rem 60px;
-      display: flex; align-items: center; justify-content: center;
-      position: relative; overflow: hidden;
-    }
-    .hero-bg {
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse 80% 60% at 50% 20%, rgba(212,168,83,0.08) 0%, transparent 70%),
-                  radial-gradient(ellipse 40% 40% at 80% 80%, rgba(59,130,246,0.05) 0%, transparent 60%);
-    }
-    /* UEMOA Map watermark */
-    .uemoa-watermark {
-      position: absolute; right: -80px; top: 50%;
-      transform: translateY(-50%);
-      opacity: 0.04; width: 500px; height: 500px;
-      pointer-events: none;
-    }
-    .hero-content { position: relative; max-width: 820px; text-align: center; }
-    .hero-badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: rgba(212,168,83,0.1); border: 1px solid var(--border);
-      padding: 6px 16px; border-radius: 999px;
-      font-size: 0.75rem; font-weight: 500; color: var(--gold);
-      margin-bottom: 2rem; letter-spacing: 0.1em; text-transform: uppercase;
-    }
-    .hero-badge::before { content: ''; width:8px; height:8px; border-radius:50%; background:var(--danger); animation:pulse 1.5s infinite; }
-    h1 {
-      font-size: clamp(2.2rem, 5vw, 3.8rem);
-      font-weight: 700; line-height: 1.1;
-      margin-bottom: 1.5rem;
-    }
-    h1 em { font-style: normal; color: var(--gold); }
-    .hero-sub {
-      font-size: 1.1rem; color: var(--text-muted);
-      max-width: 580px; margin: 0 auto 2.5rem;
-      line-height: 1.7;
-    }
-    .hero-stats {
-      display: flex; gap: 2rem; justify-content: center;
-      margin-bottom: 3rem; flex-wrap: wrap;
-    }
-    .stat-item { text-align: center; }
-    .stat-num { font-size: 2rem; font-weight: 700; color: var(--gold); font-family:'Space Mono',monospace; }
-    .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
-    .cta-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-    .btn-primary {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: var(--gold); color: var(--dark);
-      padding: 14px 28px; border-radius: var(--radius);
-      font-weight: 700; font-size: 0.95rem;
-      border: none; cursor: pointer; transition: all 0.2s;
-      text-decoration: none;
-    }
-    .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(212,168,83,0.3); }
-    .btn-secondary {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: transparent; color: var(--text);
-      padding: 14px 28px; border-radius: var(--radius);
-      font-weight: 500; font-size: 0.95rem;
-      border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;
-      text-decoration: none;
-    }
-    .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
-
-    /* ── BCEAO ALERT BANNER ── */
-    .alert-banner {
-      background: rgba(239,68,68,0.05);
-      border: 1px solid rgba(239,68,68,0.3);
-      border-radius: var(--radius); padding: 1.5rem 2rem;
-      margin: 4rem auto; max-width: 900px;
-    }
-    .alert-banner h3 { color: var(--danger); margin-bottom: 0.5rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; }
-    .alert-banner p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
-    .alert-banner a { color: var(--gold); }
-
-    /* ── SECTION COMMUNE ── */
-    section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; }
-    .section-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); margin-bottom: 0.75rem; }
-    .section-title { font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 700; margin-bottom: 1rem; }
-    .section-sub { color: var(--text-muted); font-size: 1rem; max-width: 600px; line-height: 1.7; margin-bottom: 3rem; }
-
-    /* ── CHECKER FORM ── */
-    .checker-wrapper {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 20px; overflow: hidden;
-    }
-    .checker-header {
-      background: linear-gradient(135deg, var(--dark-3), var(--card));
-      padding: 2rem; border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .checker-header h2 { font-size: 1.2rem; font-weight: 600; }
-    .progress-bar-wrap { width: 200px; }
-    .progress-bar-track { height: 6px; background: var(--dark); border-radius: 3px; overflow: hidden; }
-    .progress-bar-fill { height: 100%; background: var(--gold); border-radius: 3px; transition: width 0.4s; }
-    .progress-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; text-align: right; }
-
-    .checker-body { padding: 2rem; }
-    .step { display: none; }
-    .step.active { display: block; }
-    .step-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
-
-    .criteria-grid { display: grid; gap: 1rem; }
-    .criteria-item {
-      background: var(--dark-2);
-      border: 1px solid rgba(255,255,255,0.05);
-      border-radius: var(--radius); padding: 1.25rem;
-      display: flex; align-items: flex-start; gap: 1rem;
-      cursor: pointer; transition: all 0.2s;
-    }
-    .criteria-item:hover { border-color: var(--gold); background: rgba(212,168,83,0.03); }
-    .criteria-item input[type="checkbox"] { display: none; }
-    .criteria-check {
-      width: 22px; height: 22px; border-radius: 6px;
-      border: 2px solid var(--border);
-      flex-shrink: 0; margin-top: 2px;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s;
-    }
-    .criteria-item.checked .criteria-check { background: var(--gold); border-color: var(--gold); }
-    .criteria-item.checked .criteria-check::after { content: '✓'; color: var(--dark); font-weight: 700; font-size: 0.85rem; }
-    .criteria-text { flex: 1; }
-    .criteria-name { font-weight: 500; font-size: 0.95rem; margin-bottom: 4px; }
-    .criteria-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
-    .criteria-weight { font-size: 0.75rem; color: var(--gold); font-family: 'Space Mono', monospace; }
-
-    .checker-nav { display: flex; gap: 1rem; margin-top: 2rem; justify-content: flex-end; }
-
-    /* ── RESULT PANEL ── */
-    #result-panel { display: none; padding: 2rem; }
-    .score-ring-container { text-align: center; margin: 1rem 0 2rem; }
-    svg.ring { transform: rotate(-90deg); }
-    .ring-bg { fill: none; stroke: var(--dark); stroke-width: 12; }
-    .ring-fill { fill: none; stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 1.2s ease; }
-    .score-text { font-size: 3rem; font-weight: 700; font-family: 'Space Mono', monospace; }
-    .score-label { font-size: 0.85rem; color: var(--text-muted); }
-    .result-verdict {
-      border-radius: var(--radius); padding: 1.25rem 1.5rem;
-      margin: 1.5rem 0; border-left: 4px solid;
-    }
-    .verdict-critique { background: rgba(239,68,68,0.08); border-color: var(--danger); }
-    .verdict-partiel { background: rgba(245,158,11,0.08); border-color: var(--warning); }
-    .verdict-pret { background: rgba(34,197,94,0.08); border-color: var(--success); }
-    .verdict-title { font-weight: 700; margin-bottom: 0.5rem; }
-    .verdict-text { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
-
-    .gaps-list { list-style: none; margin: 1.5rem 0; }
-    .gaps-list li {
-      display: flex; align-items: flex-start; gap: 0.75rem;
-      padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);
-      font-size: 0.9rem;
-    }
-    .gaps-list li::before { content: '⚠'; color: var(--warning); flex-shrink: 0; }
-    .gaps-list .gap-ok::before { content: '✓'; color: var(--success); }
-
-    /* ── PRICING ── */
-    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
-    .price-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 16px; padding: 2rem; position: relative; overflow: hidden;
-      transition: all 0.3s;
-    }
-    .price-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
-    .price-card.featured { border-color: var(--gold); }
-    .price-card.featured::before {
-      content: 'RECOMMANDÉ';
-      position: absolute; top: 16px; right: 16px;
-      background: var(--gold); color: var(--dark);
-      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em;
-      padding: 4px 10px; border-radius: 999px;
-    }
-    .price-tier { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.5rem; }
-    .price-name { font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem; }
-    .price-amount { font-size: 2rem; font-weight: 700; font-family: 'Space Mono', monospace; color: var(--gold); }
-    .price-unit { font-size: 0.8rem; color: var(--text-muted); }
-    .price-features { list-style: none; margin: 1.5rem 0; }
-    .price-features li { padding: 0.5rem 0; font-size: 0.88rem; color: var(--text-muted); display: flex; gap: 0.75rem; }
-    .price-features li::before { content: '→'; color: var(--gold); }
-    .price-cta {
-      display: block; width: 100%; padding: 12px;
-      text-align: center; border-radius: 8px;
-      font-weight: 600; font-size: 0.9rem; cursor: pointer;
-      border: 1px solid var(--border); background: transparent;
-      color: var(--text); transition: all 0.2s; text-decoration: none;
-    }
-    .price-card.featured .price-cta { background: var(--gold); color: var(--dark); border-color: var(--gold); }
-    .price-cta:hover { background: var(--gold); color: var(--dark); border-color: var(--gold); }
-
-    /* ── CHATBOT ── */
-    #chatbot-fab {
-      position: fixed; bottom: 2rem; right: 2rem; z-index: 200;
-      width: 58px; height: 58px; border-radius: 50%;
-      background: var(--gold); color: var(--dark);
-      border: none; cursor: pointer; font-size: 1.4rem;
-      box-shadow: 0 8px 24px rgba(212,168,83,0.4);
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.3s;
-    }
-    #chatbot-fab:hover { transform: scale(1.1); }
-    #chatbot-panel {
-      position: fixed; bottom: 5.5rem; right: 2rem; z-index: 200;
-      width: 360px; max-height: 500px;
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 20px; display: none; flex-direction: column;
-      overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    }
-    #chatbot-panel.open { display: flex; }
-    .chat-header {
-      padding: 1rem 1.25rem; background: var(--dark-3);
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; gap: 0.75rem;
-    }
-    .chat-avatar {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: var(--gold); display: flex; align-items: center;
-      justify-content: center; color: var(--dark); font-weight: 700; font-size: 0.85rem;
-    }
-    .chat-name { font-weight: 600; font-size: 0.9rem; }
-    .chat-status { font-size: 0.75rem; color: var(--success); }
-    .chat-messages {
-      flex: 1; overflow-y: auto; padding: 1rem;
-      display: flex; flex-direction: column; gap: 0.75rem;
-    }
-    .msg { max-width: 85%; padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.85rem; line-height: 1.5; }
-    .msg-bot { background: var(--dark-2); border-radius: 12px 12px 12px 2px; color: var(--text); }
-    .msg-user { background: var(--gold); color: var(--dark); border-radius: 12px 12px 2px 12px; align-self: flex-end; font-weight: 500; }
-    .chat-input-row {
-      padding: 0.75rem; border-top: 1px solid var(--border);
-      display: flex; gap: 0.5rem;
-    }
-    .chat-input-row input {
-      flex: 1; background: var(--dark-2); border: 1px solid var(--border);
-      border-radius: 8px; padding: 8px 12px; color: var(--text);
-      font-family: inherit; font-size: 0.85rem; outline: none;
-    }
-    .chat-input-row input:focus { border-color: var(--gold); }
-    .chat-send {
-      background: var(--gold); color: var(--dark);
-      border: none; border-radius: 8px; padding: 8px 14px;
-      cursor: pointer; font-weight: 600; font-size: 0.85rem;
-    }
-    .chat-send:hover { background: var(--gold-light); }
-    .chat-suggestions { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0 1rem 0.75rem; }
-    .chat-chip {
-      font-size: 0.75rem; padding: 5px 10px; border-radius: 999px;
-      background: var(--dark-2); border: 1px solid var(--border);
-      cursor: pointer; transition: all 0.2s; color: var(--text-muted);
-    }
-    .chat-chip:hover { border-color: var(--gold); color: var(--gold); }
-
-    /* ── FOOTER ── */
-    footer {
-      background: var(--dark-2);
-      border-top: 1px solid var(--border);
-      padding: 3rem 2rem;
-      text-align: center;
-    }
-    .footer-logo { font-size: 1.2rem; font-weight: 700; color: var(--gold); margin-bottom: 0.5rem; }
-    .footer-contacts { font-size: 0.85rem; color: var(--text-muted); line-height: 2; }
-    .footer-contacts a { color: var(--gold); text-decoration: none; }
-    .footer-proverb {
-      margin: 2rem auto; max-width: 500px;
-      font-style: italic; color: var(--text-muted);
-      font-size: 0.9rem; border-top: 1px solid var(--border);
-      padding-top: 1.5rem; line-height: 1.7;
-    }
-    .footer-proverb strong { color: var(--gold); display: block; font-style: normal; }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 640px) {
-      .hero-stats { gap: 1rem; }
-      #chatbot-panel { width: calc(100vw - 2rem); right: 1rem; }
-      .pricing-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/lanickMohamed/AfriIAgenenis/main/assets/images/logo.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="styles/root.css">
+  <link rel="stylesheet" href="styles/index.css">
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <div class="nav-logo">
-    <svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="14" fill="#D4A853" opacity="0.15"/><text x="14" y="19" text-anchor="middle" fill="#D4A853" font-size="12" font-weight="700">A</text></svg>
-    afrIAgenesis® <span>/ PI-SPI Checker™</span>
-  </div>
-  <div class="nav-countdown" id="nav-countdown">Chargement...</div>
-</nav>
-
-<!-- HERO -->
-<div class="hero">
-  <div class="hero-bg"></div>
-  <svg class="uemoa-watermark" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="200" cy="200" rx="180" ry="140" stroke="white" stroke-width="1"/>
-    <circle cx="120" cy="160" r="8" fill="white"/><circle cx="160" cy="130" r="6" fill="white"/>
-    <circle cx="200" cy="150" r="7" fill="white"/><circle cx="240" cy="140" r="6" fill="white"/>
-    <circle cx="280" cy="170" r="8" fill="white"/><circle cx="150" cy="220" r="6" fill="white"/>
-    <circle cx="220" cy="230" r="7" fill="white"/><circle cx="260" cy="210" r="6" fill="white"/>
-    <line x1="120" y1="160" x2="160" y2="130" stroke="white" stroke-width="0.5"/>
-    <line x1="160" y1="130" x2="200" y2="150" stroke="white" stroke-width="0.5"/>
-    <line x1="200" y1="150" x2="240" y2="140" stroke="white" stroke-width="0.5"/>
-    <line x1="240" y1="140" x2="280" y2="170" stroke="white" stroke-width="0.5"/>
-    <line x1="120" y1="160" x2="150" y2="220" stroke="white" stroke-width="0.5"/>
-    <line x1="200" y1="150" x2="220" y2="230" stroke="white" stroke-width="0.5"/>
-    <line x1="280" y1="170" x2="260" y2="210" stroke="white" stroke-width="0.5"/>
-    <line x1="150" y1="220" x2="220" y2="230" stroke="white" stroke-width="0.5"/>
-    <line x1="220" y1="230" x2="260" y2="210" stroke="white" stroke-width="0.5"/>
-    <text x="200" y="310" text-anchor="middle" fill="white" font-size="11">UEMOA — 8 États membres</text>
-  </svg>
-  <div class="hero-content">
-    <div class="hero-badge">Alerte réglementaire BCEAO</div>
-    <h1>Votre institution est-elle<br/>prête pour <em>PI-SPI</em> ?</h1>
-    <p class="hero-sub">La BCEAO impose la connexion à la plateforme de paiement instantané (PI-SPI) avant le 30 juin 2026. Vérifiez votre conformité en 3 minutes.</p>
-    <div class="hero-stats">
-      <div class="stat-item"><div class="stat-num">122</div><div class="stat-label">Institutions ciblées</div></div>
-      <div class="stat-item"><div class="stat-num">80</div><div class="stat-label">Connectées</div></div>
-      <div class="stat-item"><div class="stat-num">42</div><div class="stat-label">En retard</div></div>
-      <div class="stat-item"><div class="stat-num" id="countdown-days">—</div><div class="stat-label">Jours restants</div></div>
-    </div>
-    <div class="cta-group">
-      <button class="btn-primary" onclick="document.getElementById('checker').scrollIntoView({behavior:'smooth'})">
-        🔍 Tester ma conformité
-      </button>
-      <button class="btn-secondary" onclick="document.getElementById('offres').scrollIntoView({behavior:'smooth'})">
-        Voir les offres →
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- BCEAO ALERT BANNER -->
-<div style="max-width:1100px; margin:0 auto; padding:0 2rem;">
-  <div class="alert-banner">
-    <h3>⚠ Communiqué officiel BCEAO — 2 avril 2026</h3>
-    <p>
-      La Banque Centrale des États de l'Afrique de l'Ouest rappelle que la connexion à la Plateforme Interopérable du Système de Paiement Instantané (PI-SPI) est <strong>obligatoire pour toutes les banques, EME et SFD agréés dans l'espace UEMOA</strong> avant le 30 juin 2026. Tout retard expose l'institution à des sanctions administratives et à une suspension temporaire d'agrément.
-      <br/><br/>
-      <a href="https://www.bceao.int/fr/communique-presse/connexion-la-plateforme-interoperable-du-systeme-de-paiement-instantane-pi-spi-de" target="_blank">→ Lire le communiqué officiel sur bceao.int</a>
-    </p>
-  </div>
-</div>
-
-<!-- CHECKER SECTION -->
-<section id="checker">
-  <div class="section-label">Outil de diagnostic</div>
-  <h2 class="section-title">PI-SPI Readiness Checker™</h2>
-  <p class="section-sub">Évaluez votre niveau de préparation en 3 étapes. Score instantané, lacunes identifiées, plan d'action personnalisé.</p>
-
-  <div class="checker-wrapper">
-    <div class="checker-header">
-      <h2 id="step-title">Étape 1 / 3 — Infrastructure technique</h2>
-      <div class="progress-bar-wrap">
-        <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-fill" style="width:33%"></div></div>
-        <div class="progress-label" id="progress-label">Étape 1 sur 3</div>
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">
+      <img src="https://raw.githubusercontent.com/lanickMohamed/AfriIAgenenis/main/assets/images/logo.jpg" alt="logo afrIAgenesis">
+      <div>
+        <div class="title">afrIAgenesis®</div>
+        <div class="subtitle">Pispi-readiness | PI-SPI Checker™</div>
       </div>
     </div>
-    <div class="checker-body">
+    <div class="nav-countdown" id="nav-countdown">Chargement...</div>
+  </nav>
 
-      <!-- STEP 1 — Infrastructure -->
-      <div class="step active" id="step-1">
-        <div class="step-title">Infrastructure technique</div>
-        <div class="criteria-grid">
-          <label class="criteria-item" onclick="toggle(this,'infra_api',20)">
-            <input type="checkbox" id="infra_api"/>
-            <div class="criteria-check"></div>
-            <div class="criteria-text">
-              <div class="criteria-name">Intégration API REST PI-SPI</div>
-              <div class="criteria-desc">Votre système core banking peut émettre/recevoir des requêtes REST conformes aux specs BCEAO (alias, virement instantané)</div>
-              <div class="criteria-weight">Poids : 20 pts</div>
-            </div>
-          </label>
-          <label class="criteria-item" onclick="toggle(this,'infra_mtls',15)">
-            <input type="checkbox" id="infra_mtls"/>
-            <div class="criteria-check"></div>
-            <div class="criteria-text">
-              <div class="criteria-name">Certificat mTLS déployé</div>
-              <div class="criteria-desc">Authentification mutuelle TLS active avec le serveur BCEAO (clientId + certificat client émis)</div>
-              <div class="criteria-weight">Poids : 15 pts</div>
-            </div>
-          </label>
-          <label class="criteria-item" onclick="toggle(this,'infra_oauth',15)">
-            <input type="checkbox" id="infra_oauth"/>
-            <div class="criteria-check"></div>
-            <div class="criteria-text">
-              <div class="criteria-name">OAuth 2.0 — Client Credentials opérationnel</div>
-              <div class="criteria-desc">Votre système obtient et renouvelle automatiquement les tokens BCEAO via AWS Cognito (endpoint /token)</div>
-              <div class="criteria-weight">Poids : 15 pts</div>
-            </div>
-          </label>
-          <label class="criteria-item" onclick="toggle(this,'infra_sandbox',10)">
-            <input type="checkbox" id="infra_sandbox"/>
-            <div class="criteria-check"></div>
-            <div class="criteria-text">
-              <div class="criteria-name">Tests sandbox réussis</div>
-              <div class="criteria-desc">Vos équipes ont effectué des appels réussis sur sandbox.api.pi-bceao.com avec compte de test BCEAO</div>
-              <div class="criteria-weight">Poids : 10 pts</div>
-            </div>
-          </label>
-        </div>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <svg class="uemoa-watermark" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <ellipse cx="200" cy="200" rx="180" ry="140" stroke="white" stroke-width="1"/>
+      <circle cx="120" cy="160" r="8" fill="white"/><circle cx="160" cy="130" r="6" fill="white"/>
+      <circle cx="200" cy="150" r="7" fill="white"/><circle cx="240" cy="140" r="6" fill="white"/>
+      <circle cx="280" cy="170" r="8" fill="white"/><circle cx="150" cy="220" r="6" fill="white"/>
+      <circle cx="220" cy="230" r="7" fill="white"/><circle cx="260" cy="210" r="6" fill="white"/>
+      <line x1="120" y1="160" x2="160" y2="130" stroke="white" stroke-width="0.5"/>
+      <line x1="160" y1="130" x2="200" y2="150" stroke="white" stroke-width="0.5"/>
+      <line x1="200" y1="150" x2="240" y2="140" stroke="white" stroke-width="0.5"/>
+      <line x1="240" y1="140" x2="280" y2="170" stroke="white" stroke-width="0.5"/>
+      <line x1="120" y1="160" x2="150" y2="220" stroke="white" stroke-width="0.5"/>
+      <line x1="200" y1="150" x2="220" y2="230" stroke="white" stroke-width="0.5"/>
+      <line x1="280" y1="170" x2="260" y2="210" stroke="white" stroke-width="0.5"/>
+      <line x1="150" y1="220" x2="220" y2="230" stroke="white" stroke-width="0.5"/>
+      <line x1="220" y1="230" x2="260" y2="210" stroke="white" stroke-width="0.5"/>
+      <text x="200" y="310" text-anchor="middle" fill="white" font-size="11">UEMOA — 8 États membres</text>
+    </svg>
+    <div class="hero-content">
+      <div class="hero-badge">Alerte réglementaire BCEAO</div>
+      <h1>Votre institution est-elle<br/>prête pour <em>PI-SPI</em> ?</h1>
+      <p class="hero-sub">La BCEAO impose la connexion à la plateforme de paiement instantané (PI-SPI) avant le 30 juin 2026. Vérifiez votre conformité en 3 minutes.</p>
+      <div class="hero-stats">
+        <div class="stat-item"><div class="stat-num">122</div><div class="stat-label">Institutions ciblées</div></div>
+        <div class="stat-item"><div class="stat-num">80</div><div class="stat-label">Connectées</div></div>
+        <div class="stat-item"><div class="stat-num">42</div><div class="stat-label">En retard</div></div>
+        <div class="stat-item"><div class="stat-num" id="countdown-days">—</div><div class="stat-label">Jours restants</div></div>
       </div>
-
-      <!-- STEP 2 — Conformité réglementaire -->
-      <div class="step" id="step-2">
-        <div class="step-title">Conformité réglementaire & processus</div>
-        <div class="criteria-grid">
-          <label class="criteria-item" onclick="toggle(this,'reg_dossier',10)">
-            <input type="checkbox" id="reg_dossier"/>
-            <div class="criteria-check"></div>
-            <div class="criteria-text">
-              <div class="criteria-name">Dossier de connexion soumis à la BCEAO</div>
-              <div class="criteria-desc">Votre institution a transmis le formulaire d'adhésion officiel et reçu un accusé de réception de la BCEAO</div>
-              <div class="criteria-weight">Poids : 10 pts</div>
-            </div>
-          </label>
-          <label class="criteria-item" onclick="toggle(this,'reg_kyc',10)">
-            <input type="checkbox" id="reg_kyc"/>
-            <div class="criteria-check"></div>
-            <div class="criteria-text">
-              <div class="criteria-name">KYC & LCB-FT adapté au paiement instantané</div>
-              <div class="criteria-desc">Vos procédures de vérification client sont compatibles avec les délais sub-5s imposés par PI-SPI</div>
-              <div class="criteria-weight">Poids : 10 pts</div>
-            </div>
-          </label>
-          <label class="criteria-item" onclick="toggle(this,'reg_sla',5)">
-            <input type="checkbox" id="reg_sla"/>
-            <div class="criteria-check"></div>
-            <div class="criteria-text">
-              <div class="criteria-name">SLA < 5 secondes documenté</div>
-              <div class="criteria-desc">Votre architecture garantit un temps de réponse bout-en-bout inférieur à 5 secondes (exigence PI-SPI)</div>
-              <div class="criteria-weight">Poids : 5 pts</div>
-            </div>
-          </label>
-          <label class="criteria-item" onclick="toggle(this,'reg_incident',5)">
-            <input type="checkbox" id="reg_incident"/>
-            <div class="criteria-check"></div>
-            <div class="criteria-text">
-              <div class="criteria-name">Procédure de gestion des incidents PI-SPI</div>
-              <div class="criteria-desc">Plan de réponse aux incidents documenté et équipe d'astreinte désignée pour les rejets/timeouts PI-SPI</div>
-              <div class="criteria-weight">Poids : 5 pts</div>
-            </div>
-          </label>
-        </div>
+      <div class="cta-group">
+        <button class="btn-primary" id="btn-scroll-checker">
+          <i class="fa-solid fa-magnifying-glass"></i> Tester ma conformité
+        </button>
+        <button class="btn-secondary" id="btn-scroll-offres">
+          Voir les offres <i class="fa-solid fa-arrow-right"></i>
+        </button>
       </div>
+    </div>
+  </div>
 
-      <!-- STEP 3 — Organisation & gouvernance -->
-      <div class="step" id="step-3">
-        <div class="step-title">Organisation & gouvernance interne</div>
-        <div class="criteria-grid">
-          <label class="criteria-item" onclick="toggle(this,'org_equipe',5)">
-            <input type="checkbox" id="org_equipe"/>
-            <div class="criteria-check"></div>
-            <div class="criteria-text">
-              <div class="criteria-name">Équipe projet PI-SPI désignée</div>
-              <div class="criteria-desc">Un responsable technique et un responsable conformité ont été officiellement nommés pour le projet PI-SPI</div>
-              <div class="criteria-weight">Poids : 5 pts</div>
-            </div>
-          </label>
-          <label class="criteria-item" onclick="toggle(this,'org_formation',3)">
-            <input type="checkbox" id="org_formation"/>
-            <div class="criteria-check"></div>
-            <div class="criteria-text">
-              <div class="criteria-name">Formation des équipes réalisée</div>
-              <div class="criteria-desc">Vos équipes IT et conformité ont été formées aux spécifications techniques et règles PI-SPI BCEAO</div>
-              <div class="criteria-weight">Poids : 3 pts</div>
-            </div>
-          </label>
-          <label class="criteria-item" onclick="toggle(this,'org_budget',2)">
-            <input type="checkbox" id="org_budget"/>
-            <div class="criteria-check"></div>
-            <div class="criteria-text">
-              <div class="criteria-name">Budget d'intégration validé</div>
-              <div class="criteria-desc">Les ressources financières nécessaires à l'intégration PI-SPI ont été allouées et approuvées</div>
-              <div class="criteria-weight">Poids : 2 pts</div>
-            </div>
-          </label>
-        </div>
-      </div>
+  <!-- BCEAO ALERT BANNER -->
+  <div class="alert-wrapper">
+    <div class="alert-banner">
+      <h3><i class="fa-solid fa-triangle-exclamation"></i> Communiqué officiel BCEAO — 2 avril 2026</h3>
+      <p>
+        La Banque Centrale des États de l'Afrique de l'Ouest rappelle que la connexion à la Plateforme Interopérable du Système de Paiement Instantané (PI-SPI) est
+        <strong>obligatoire pour toutes les banques, EME et SFD agréés dans l'espace UEMOA</strong> avant le 30 juin 2026.
+        Tout retard expose l'institution à des sanctions administratives et à une suspension temporaire d'agrément.
+        <br/><br/>
+        <a href="https://www.bceao.int/fr/communique-presse/connexion-la-plateforme-interoperable-du-systeme-de-paiement-instantane-pi-spi-de" target="_blank" rel="noopener">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Lire le communiqué officiel sur bceao.int
+        </a>
+      </p>
+    </div>
+  </div>
 
-      <!-- RESULT PANEL -->
-      <div id="result-panel">
-        <div class="score-ring-container">
-          <svg class="ring" width="160" height="160" viewBox="0 0 160 160">
-            <circle class="ring-bg" cx="80" cy="80" r="68"/>
-            <circle class="ring-fill" id="ring-fill" cx="80" cy="80" r="68" stroke-dasharray="427" stroke-dashoffset="427"/>
-          </svg>
-          <div style="margin-top:-120px; position:relative;">
-            <div class="score-text" id="score-display">0</div>
-            <div class="score-label">/ 100 pts</div>
+  <!-- CHECKER SECTION -->
+  <section id="checker">
+    <div class="section-label">Outil de diagnostic</div>
+    <h2 class="section-title">PI-SPI Readiness Checker™</h2>
+    <p class="section-sub">Évaluez votre niveau de préparation en 3 étapes. Score instantané, lacunes identifiées, plan d'action personnalisé.</p>
+
+    <div class="checker-wrapper">
+      <div class="checker-header">
+        <h2 id="step-title">Étape 1 / 3 — Infrastructure technique</h2>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progress-fill" style="width:33%"></div>
           </div>
-          <div style="margin-top:80px;"></div>
+          <div class="progress-label" id="progress-label">Étape 1 sur 3</div>
         </div>
-        <div id="verdict-box" class="result-verdict"></div>
-        <h3 style="margin:1.5rem 0 1rem; font-size:1rem;">Points d'attention identifiés</h3>
-        <ul class="gaps-list" id="gaps-list"></ul>
-        <div style="margin-top:2rem; display:flex; gap:1rem; flex-wrap:wrap;">
-          <button class="btn-primary" id="btn-pdf" onclick="openPdfModal()" style="background:var(--gold);">
-            📄 Télécharger mon rapport PDF
+      </div>
+
+      <div class="checker-body">
+
+        <!-- STEP 1 -->
+        <div class="step active" id="step-1">
+          <div class="step-title">Infrastructure technique</div>
+          <div class="criteria-grid">
+            <label class="criteria-item" onclick="toggle(event,this,'infra_api',20)">
+              <input type="checkbox" id="infra_api"/>
+              <div class="criteria-check"></div>
+              <div class="criteria-text">
+                <div class="criteria-name">Intégration API REST PI-SPI</div>
+                <div class="criteria-desc">Votre système core banking peut émettre/recevoir des requêtes REST conformes aux specs BCEAO (alias, virement instantané)</div>
+                <div class="criteria-weight">Poids : 20 pts</div>
+              </div>
+            </label>
+            <label class="criteria-item" onclick="toggle(event,this,'infra_mtls',15)">
+              <input type="checkbox" id="infra_mtls"/>
+              <div class="criteria-check"></div>
+              <div class="criteria-text">
+                <div class="criteria-name">Certificat mTLS déployé</div>
+                <div class="criteria-desc">Authentification mutuelle TLS active avec le serveur BCEAO (clientId + certificat client émis)</div>
+                <div class="criteria-weight">Poids : 15 pts</div>
+              </div>
+            </label>
+            <label class="criteria-item" onclick="toggle(event,this,'infra_oauth',15)">
+              <input type="checkbox" id="infra_oauth"/>
+              <div class="criteria-check"></div>
+              <div class="criteria-text">
+                <div class="criteria-name">OAuth 2.0 — Client Credentials opérationnel</div>
+                <div class="criteria-desc">Votre système obtient et renouvelle automatiquement les tokens BCEAO via AWS Cognito (endpoint /token)</div>
+                <div class="criteria-weight">Poids : 15 pts</div>
+              </div>
+            </label>
+            <label class="criteria-item" onclick="toggle(event,this,'infra_sandbox',10)">
+              <input type="checkbox" id="infra_sandbox"/>
+              <div class="criteria-check"></div>
+              <div class="criteria-text">
+                <div class="criteria-name">Tests sandbox réussis</div>
+                <div class="criteria-desc">Vos équipes ont effectué des appels réussis sur sandbox.api.pi-bceao.com avec compte de test BCEAO</div>
+                <div class="criteria-weight">Poids : 10 pts</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="step" id="step-2">
+          <div class="step-title">Conformité réglementaire & processus</div>
+          <div class="criteria-grid">
+            <label class="criteria-item" onclick="toggle(event,this,'reg_dossier',10)">
+              <input type="checkbox" id="reg_dossier"/>
+              <div class="criteria-check"></div>
+              <div class="criteria-text">
+                <div class="criteria-name">Dossier de connexion soumis à la BCEAO</div>
+                <div class="criteria-desc">Votre institution a transmis le formulaire d'adhésion officiel et reçu un accusé de réception de la BCEAO</div>
+                <div class="criteria-weight">Poids : 10 pts</div>
+              </div>
+            </label>
+            <label class="criteria-item" onclick="toggle(event,this,'reg_kyc',10)">
+              <input type="checkbox" id="reg_kyc"/>
+              <div class="criteria-check"></div>
+              <div class="criteria-text">
+                <div class="criteria-name">KYC & LCB-FT adapté au paiement instantané</div>
+                <div class="criteria-desc">Vos procédures de vérification client sont compatibles avec les délais sub-5s imposés par PI-SPI</div>
+                <div class="criteria-weight">Poids : 10 pts</div>
+              </div>
+            </label>
+            <label class="criteria-item" onclick="toggle(event,this,'reg_sla',5)">
+              <input type="checkbox" id="reg_sla"/>
+              <div class="criteria-check"></div>
+              <div class="criteria-text">
+                <div class="criteria-name">SLA &lt; 5 secondes documenté</div>
+                <div class="criteria-desc">Votre architecture garantit un temps de réponse bout-en-bout inférieur à 5 secondes (exigence PI-SPI)</div>
+                <div class="criteria-weight">Poids : 5 pts</div>
+              </div>
+            </label>
+            <label class="criteria-item" onclick="toggle(event,this,'reg_incident',5)">
+              <input type="checkbox" id="reg_incident"/>
+              <div class="criteria-check"></div>
+              <div class="criteria-text">
+                <div class="criteria-name">Procédure de gestion des incidents PI-SPI</div>
+                <div class="criteria-desc">Plan de réponse aux incidents documenté et équipe d'astreinte désignée pour les rejets/timeouts PI-SPI</div>
+                <div class="criteria-weight">Poids : 5 pts</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="step" id="step-3">
+          <div class="step-title">Organisation & gouvernance interne</div>
+          <div class="criteria-grid">
+            <label class="criteria-item" onclick="toggle(event,this,'org_equipe',5)">
+              <input type="checkbox" id="org_equipe"/>
+              <div class="criteria-check"></div>
+              <div class="criteria-text">
+                <div class="criteria-name">Équipe projet PI-SPI désignée</div>
+                <div class="criteria-desc">Un responsable technique et un responsable conformité ont été officiellement nommés pour le projet PI-SPI</div>
+                <div class="criteria-weight">Poids : 5 pts</div>
+              </div>
+            </label>
+            <label class="criteria-item" onclick="toggle(event,this,'org_formation',3)">
+              <input type="checkbox" id="org_formation"/>
+              <div class="criteria-check"></div>
+              <div class="criteria-text">
+                <div class="criteria-name">Formation des équipes réalisée</div>
+                <div class="criteria-desc">Vos équipes IT et conformité ont été formées aux spécifications techniques et règles PI-SPI BCEAO</div>
+                <div class="criteria-weight">Poids : 3 pts</div>
+              </div>
+            </label>
+            <label class="criteria-item" onclick="toggle(event,this,'org_budget',2)">
+              <input type="checkbox" id="org_budget"/>
+              <div class="criteria-check"></div>
+              <div class="criteria-text">
+                <div class="criteria-name">Budget d'intégration validé</div>
+                <div class="criteria-desc">Les ressources financières nécessaires à l'intégration PI-SPI ont été allouées et approuvées</div>
+                <div class="criteria-weight">Poids : 2 pts</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- RESULT PANEL -->
+        <div id="result-panel">
+          <div class="score-ring-container">
+            <svg class="ring" width="160" height="160" viewBox="0 0 160 160" aria-hidden="true">
+              <circle class="ring-bg" cx="80" cy="80" r="68"/>
+              <circle class="ring-fill" id="ring-fill" cx="80" cy="80" r="68" stroke-dasharray="427" stroke-dashoffset="427"/>
+            </svg>
+            <div class="score-overlay">
+              <div class="score-text" id="score-display">0</div>
+              <div class="score-label">/ 100 pts</div>
+            </div>
+          </div>
+          <div id="verdict-box" class="result-verdict"></div>
+          <h3 class="gaps-title">Points d'attention identifiés</h3>
+          <ul class="gaps-list" id="gaps-list"></ul>
+          <div class="result-actions">
+            <button class="btn-primary" id="btn-pdf" onclick="openPdfModal()">
+              <i class="fa-solid fa-file-pdf"></i> Télécharger mon rapport PDF
+            </button>
+            <a href="https://wa.me/22901611073" target="_blank" rel="noopener" class="btn-secondary">
+              <i class="fa-brands fa-whatsapp"></i> Parler à un expert
+            </a>
+            <button class="btn-secondary" onclick="resetChecker()">
+              <i class="fa-solid fa-rotate-left"></i> Recommencer
+            </button>
+          </div>
+        </div>
+
+        <!-- NAVIGATION -->
+        <div class="checker-nav" id="checker-nav">
+          <button class="btn-secondary" id="btn-prev" onclick="prevStep()" style="display:none">
+            <i class="fa-solid fa-arrow-left"></i> Précédent
           </button>
-          <a href="https://wa.me/22901611073" target="_blank" class="btn-secondary">
-            📲 Parler à un expert
+          <button class="btn-primary" id="btn-next" onclick="nextStep()">
+            Suivant <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING SECTION -->
+  <section id="offres" class="pricing-section">
+    <div class="pricing-inner">
+      <div class="section-label">Nos offres d'accompagnement</div>
+      <h2 class="section-title">Mise en conformité PI-SPI clé en main</h2>
+      <p class="section-sub">Trois niveaux d'intervention adaptés à votre situation réglementaire et à votre timeline.</p>
+      <div class="pricing-grid">
+        <div class="price-card">
+          <div class="price-tier">Bronze</div>
+          <div class="price-name">Audit & Diagnostic</div>
+          <div class="price-amount">250K <span class="price-unit">FCFA</span></div>
+          <ul class="price-features">
+            <li>Audit complet de conformité PI-SPI (22 points)</li>
+            <li>Rapport de lacunes prioritarisées</li>
+            <li>Roadmap d'intégration sur 30 jours</li>
+            <li>1 session de travail avec votre équipe IT</li>
+            <li>Livrables : rapport PDF + présentation DG</li>
+          </ul>
+          <a href="https://wa.me/22901611073?text=Je souhaite l'offre Bronze PI-SPI Checker" class="price-cta" target="_blank" rel="noopener">
+            Démarrer <i class="fa-solid fa-arrow-right"></i>
           </a>
-          <button class="btn-secondary" onclick="resetChecker()">↺ Recommencer</button>
+        </div>
+        <div class="price-card featured">
+          <div class="price-tier">Gold</div>
+          <div class="price-name">Intégration Assistée</div>
+          <div class="price-amount">750K <span class="price-unit">FCFA</span></div>
+          <ul class="price-features">
+            <li>Tout le Bronze + implémentation technique</li>
+            <li>Client API PI-SPI (OAuth2 + mTLS) livré</li>
+            <li>Tests sandbox end-to-end validés</li>
+            <li>Formation équipe IT (2 jours)</li>
+            <li>Accompagnement soumission dossier BCEAO</li>
+            <li>Support 60 jours post-déploiement</li>
+          </ul>
+          <a href="https://wa.me/22901611073?text=Je souhaite l'offre Gold PI-SPI Checker" class="price-cta" target="_blank" rel="noopener">
+            Démarrer <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+        <div class="price-card">
+          <div class="price-tier">Platinum</div>
+          <div class="price-name">Conformité Totale</div>
+          <div class="price-amount">1.5M <span class="price-unit">FCFA</span></div>
+          <ul class="price-features">
+            <li>Tout le Gold + gouvernance complète</li>
+            <li>Module SLA Monitor temps réel</li>
+            <li>Dashboard conformité pour DG/CA</li>
+            <li>Procédures KYC adaptées PI-SPI</li>
+            <li>Plan de gestion des incidents</li>
+            <li>Support 12 mois + mises à jour réglementaires</li>
+          </ul>
+          <a href="https://wa.me/22901611073?text=Je souhaite l'offre Platinum PI-SPI Checker" class="price-cta" target="_blank" rel="noopener">
+            Nous contacter <i class="fa-solid fa-arrow-right"></i>
+          </a>
         </div>
       </div>
+    </div>
+  </section>
 
-      <!-- MODALE SAISIE INFOS CLIENT -->
-      <div id="pdf-modal" style="display:none; position:fixed; inset:0; z-index:500; background:rgba(0,0,0,0.7); backdrop-filter:blur(8px); align-items:center; justify-content:center;">
-        <div style="background:var(--card); border:1px solid var(--border); border-radius:20px; padding:2.5rem; width:min(480px,90vw); position:relative;">
-          <button onclick="closePdfModal()" style="position:absolute; top:1rem; right:1rem; background:none; border:none; color:var(--text-muted); font-size:1.4rem; cursor:pointer;">✕</button>
-          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--gold); margin-bottom:0.5rem;">Rapport officiel</div>
-          <h3 style="font-size:1.2rem; margin-bottom:0.5rem;">Générer votre rapport PI-SPI</h3>
-          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.6;">Le rapport sera personnalisé pour votre institution et envoyé directement à votre équipe.</p>
-          <div style="display:flex; flex-direction:column; gap:1rem;">
-            <div>
-              <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Nom de l'institution *</label>
-              <input id="pdf-institution" type="text" placeholder="Ex : Banque de l'Afrique Solidaire" style="width:100%; background:var(--dark-2); border:1px solid var(--border); border-radius:8px; padding:10px 14px; color:var(--text); font-family:inherit; font-size:0.9rem; outline:none;"/>
-            </div>
-            <div>
-              <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Préparé pour (nom du destinataire)</label>
-              <input id="pdf-contact" type="text" placeholder="Ex : M. Koné Mamadou, DG" style="width:100%; background:var(--dark-2); border:1px solid var(--border); border-radius:8px; padding:10px 14px; color:var(--text); font-family:inherit; font-size:0.9rem; outline:none;"/>
-            </div>
-            <div>
-              <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Type d'institution</label>
-              <select id="pdf-type" style="width:100%; background:var(--dark-2); border:1px solid var(--border); border-radius:8px; padding:10px 14px; color:var(--text); font-family:inherit; font-size:0.9rem; outline:none;">
-                <option value="Banque commerciale">Banque commerciale</option>
-                <option value="Établissement de Monnaie Électronique (EME)">Établissement de Monnaie Électronique (EME)</option>
-                <option value="Système Financier Décentralisé (SFD)">Système Financier Décentralisé (SFD)</option>
-                <option value="Établissement de Paiement (EP)">Établissement de Paiement (EP)</option>
-              </select>
-            </div>
-            <div>
-              <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Pays UEMOA</label>
-              <select id="pdf-pays" style="width:100%; background:var(--dark-2); border:1px solid var(--border); border-radius:8px; padding:10px 14px; color:var(--text); font-family:inherit; font-size:0.9rem; outline:none;">
-                <option>Bénin</option><option>Burkina Faso</option><option>Côte d'Ivoire</option>
-                <option>Guinée-Bissau</option><option>Mali</option><option>Niger</option>
-                <option>Sénégal</option><option>Togo</option>
-              </select>
-            </div>
-          </div>
-          <button onclick="generatePDF()" class="btn-primary" style="width:100%; margin-top:1.5rem; justify-content:center;">
-            ⬇ Générer et télécharger le PDF
-          </button>
-          <p style="font-size:0.75rem; color:var(--text-muted); margin-top:1rem; text-align:center;">Document confidentiel — généré localement, non transmis</p>
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">afrIAgenesis®</div>
+    <div class="footer-contacts">
+      CEA Consulting SAS — Cotonou, Bénin<br/>
+      <a href="tel:+22901611073"><i class="fa-solid fa-phone"></i> +229 01 61 10 73 73</a> (Bénin) &nbsp;|&nbsp;
+      <a href="tel:+224611406262"><i class="fa-solid fa-phone"></i> +224 611 406 262</a> (Guinée)<br/>
+      <a href="mailto:lanickconsult@gmail.com"><i class="fa-solid fa-envelope"></i> lanickconsult@gmail.com</a>
+    </div>
+    <div class="footer-proverb">
+      <strong>Proverbe Wolof (Sénégal)</strong>
+      « Luy dem luy déllu, dafa yomb. Ce qui part et revient, ça facilite le chemin. »<br/>
+      <em>— La connexion PI-SPI n'est pas une contrainte, c'est une route vers la confiance régionale.</em>
+    </div>
+    <p class="footer-copy">© 2026 afrIAgenesis® — CEA Consulting SAS — Tous droits réservés</p>
+  </footer>
+
+  <!-- CHATBOT FAB -->
+  <button id="chatbot-fab" onclick="toggleChat()" title="AfrIA Assistant™" aria-label="Ouvrir le chat">
+    <i class="fa-solid fa-comment"></i>
+  </button>
+  <div id="chatbot-panel" role="dialog" aria-label="AfrIA Assistant">
+    <div class="chat-header">
+      <div class="chat-avatar">AA</div>
+      <div>
+        <div class="chat-name">AfrIA Assistant™</div>
+        <div class="chat-status"><i class="fa-solid fa-circle"></i> En ligne</div>
+      </div>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="msg msg-bot">Bonjour ! Je suis AfrIA Assistant™. Je peux vous aider à comprendre vos obligations PI-SPI. Posez votre question ou choisissez un sujet ci-dessous.</div>
+    </div>
+    <div class="chat-suggestions" id="chat-suggestions">
+      <span class="chat-chip" onclick="ask(this.textContent)">Qu'est-ce que PI-SPI ?</span>
+      <span class="chat-chip" onclick="ask(this.textContent)">Qui est concerné ?</span>
+      <span class="chat-chip" onclick="ask(this.textContent)">Sanctions BCEAO</span>
+      <span class="chat-chip" onclick="ask(this.textContent)">Délai d'intégration</span>
+      <span class="chat-chip" onclick="ask(this.textContent)">Coût d'intégration</span>
+      <span class="chat-chip" onclick="ask(this.textContent)">mTLS obligatoire ?</span>
+    </div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" placeholder="Votre question..." onkeydown="if(event.key==='Enter')sendChat()"/>
+      <button class="chat-send" onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+  </div>
+
+  <!-- MODALE PDF -->
+  <div id="pdf-modal" role="dialog" aria-modal="true" aria-label="Générer rapport PDF">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closePdfModal()" aria-label="Fermer">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="modal-label">Rapport officiel</div>
+      <h3 class="modal-title">Générer votre rapport PI-SPI</h3>
+      <p class="modal-desc">Le rapport sera personnalisé pour votre institution et téléchargé directement.</p>
+      <div class="modal-fields">
+        <div class="modal-field">
+          <label for="pdf-institution">Nom de l'institution *</label>
+          <input id="pdf-institution" type="text" placeholder="Ex : Banque de l'Afrique Solidaire"/>
+        </div>
+        <div class="modal-field">
+          <label for="pdf-contact">Préparé pour (nom du destinataire)</label>
+          <input id="pdf-contact" type="text" placeholder="Ex : M. Koné Mamadou, DG"/>
+        </div>
+        <div class="modal-field">
+          <label for="pdf-type">Type d'institution</label>
+          <select id="pdf-type">
+            <option value="Banque commerciale">Banque commerciale</option>
+            <option value="Établissement de Monnaie Électronique (EME)">Établissement de Monnaie Électronique (EME)</option>
+            <option value="Système Financier Décentralisé (SFD)">Système Financier Décentralisé (SFD)</option>
+            <option value="Établissement de Paiement (EP)">Établissement de Paiement (EP)</option>
+          </select>
+        </div>
+        <div class="modal-field">
+          <label for="pdf-pays">Pays UEMOA</label>
+          <select id="pdf-pays">
+            <option>Bénin</option>
+            <option>Burkina Faso</option>
+            <option>Côte d'Ivoire</option>
+            <option>Guinée-Bissau</option>
+            <option>Mali</option>
+            <option>Niger</option>
+            <option>Sénégal</option>
+            <option>Togo</option>
+          </select>
         </div>
       </div>
-
-      <!-- NAVIGATION BUTTONS -->
-      <div class="checker-nav" id="checker-nav">
-        <button class="btn-secondary" id="btn-prev" onclick="prevStep()" style="display:none">← Précédent</button>
-        <button class="btn-primary" id="btn-next" onclick="nextStep()">Suivant →</button>
-      </div>
+      <button onclick="generatePDF()" class="btn-primary modal-btn">
+        <i class="fa-solid fa-download"></i> Générer et télécharger le PDF
+      </button>
+      <p class="modal-note"><i class="fa-solid fa-lock"></i> Document confidentiel — généré localement, non transmis</p>
     </div>
   </div>
-</section>
 
-<!-- PRICING SECTION -->
-<section id="offres" style="background:var(--dark-2); max-width:100%; padding:5rem 2rem;">
-  <div style="max-width:1100px; margin:0 auto;">
-    <div class="section-label">Nos offres d'accompagnement</div>
-    <h2 class="section-title">Mise en conformité PI-SPI clé en main</h2>
-    <p class="section-sub">Trois niveaux d'intervention adaptés à votre situation réglementaire et à votre timeline.</p>
-    <div class="pricing-grid">
-      <!-- BRONZE -->
-      <div class="price-card">
-        <div class="price-tier">Bronze</div>
-        <div class="price-name">Audit & Diagnostic</div>
-        <div class="price-amount">250K <span class="price-unit">FCFA</span></div>
-        <ul class="price-features">
-          <li>Audit complet de conformité PI-SPI (22 points)</li>
-          <li>Rapport de lacunes prioritarisées</li>
-          <li>Roadmap d'intégration sur 30 jours</li>
-          <li>1 session de travail avec votre équipe IT</li>
-          <li>Livrables : rapport PDF + présentation DG</li>
-        </ul>
-        <a href="https://wa.me/22901611073?text=Je souhaite l'offre Bronze PI-SPI Checker" class="price-cta">Démarrer →</a>
-      </div>
-      <!-- GOLD FEATURED -->
-      <div class="price-card featured">
-        <div class="price-tier">Gold</div>
-        <div class="price-name">Intégration Assistée</div>
-        <div class="price-amount">750K <span class="price-unit">FCFA</span></div>
-        <ul class="price-features">
-          <li>Tout le Bronze + implémentation technique</li>
-          <li>Client API PI-SPI (OAuth2 + mTLS) livré</li>
-          <li>Tests sandbox end-to-end validés</li>
-          <li>Formation équipe IT (2 jours)</li>
-          <li>Accompagnement soumission dossier BCEAO</li>
-          <li>Support 60 jours post-déploiement</li>
-        </ul>
-        <a href="https://wa.me/22901611073?text=Je souhaite l'offre Gold PI-SPI Checker" class="price-cta">Démarrer →</a>
-      </div>
-      <!-- PLATINUM -->
-      <div class="price-card">
-        <div class="price-tier">Platinum</div>
-        <div class="price-name">Conformité Totale</div>
-        <div class="price-amount">1.5M <span class="price-unit">FCFA</span></div>
-        <ul class="price-features">
-          <li>Tout le Gold + gouvernance complète</li>
-          <li>Module SLA Monitor temps réel</li>
-          <li>Dashboard conformité pour DG/CA</li>
-          <li>Procédures KYC adaptées PI-SPI</li>
-          <li>Plan de gestion des incidents</li>
-          <li>Support 12 mois + mises à jour réglementaires</li>
-        </ul>
-        <a href="https://wa.me/22901611073?text=Je souhaite l'offre Platinum PI-SPI Checker" class="price-cta">Nous contacter →</a>
-      </div>
-    </div>
-  </div>
-</section>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <script src="scripts/index.js"></script>
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-logo">afrIAgenesis®</div>
-  <div class="footer-contacts">
-    CEA Consulting SAS — Cotonou, Bénin<br/>
-    <a href="tel:+22901611073">+229 01 61 10 73 73</a> (Bénin) &nbsp;|&nbsp;
-    <a href="tel:+224611406262">+224 611 406 262</a> (Guinée)<br/>
-    <a href="mailto:lanickconsult@gmail.com">lanickconsult@gmail.com</a>
-  </div>
-  <div class="footer-proverb">
-    <strong>Proverbe Wolof (Sénégal)</strong>
-    « Luy dem luy déllu, dafa yomb. Ce qui part et revient, ça facilite le chemin. »<br/>
-    <em>— La connexion PI-SPI n'est pas une contrainte, c'est une route vers la confiance régionale.</em>
-  </div>
-  <div style="font-size:0.75rem; color:var(--text-muted); margin-top:1rem;">
-    © 2026 afrIAgenesis® — CEA Consulting SAS — Tous droits réservés
-  </div>
-</footer>
-
-<!-- CHATBOT FAB -->
-<button id="chatbot-fab" onclick="toggleChat()" title="AfrIA Assistant™">💬</button>
-<div id="chatbot-panel">
-  <div class="chat-header">
-    <div class="chat-avatar">AA</div>
-    <div>
-      <div class="chat-name">AfrIA Assistant™</div>
-      <div class="chat-status">● En ligne</div>
-    </div>
-  </div>
-  <div class="chat-messages" id="chat-messages">
-    <div class="msg msg-bot">Bonjour ! Je suis AfrIA Assistant™. Je peux vous aider à comprendre vos obligations PI-SPI. Posez votre question ou choisissez un sujet ci-dessous.</div>
-  </div>
-  <div class="chat-suggestions" id="chat-suggestions">
-    <span class="chat-chip" onclick="ask(this.textContent)">Qu'est-ce que PI-SPI ?</span>
-    <span class="chat-chip" onclick="ask(this.textContent)">Qui est concerné ?</span>
-    <span class="chat-chip" onclick="ask(this.textContent)">Sanctions BCEAO</span>
-    <span class="chat-chip" onclick="ask(this.textContent)">Délai d'intégration</span>
-    <span class="chat-chip" onclick="ask(this.textContent)">Coût d'intégration</span>
-    <span class="chat-chip" onclick="ask(this.textContent)">mTLS obligatoire ?</span>
-  </div>
-  <div class="chat-input-row">
-    <input type="text" id="chat-input" placeholder="Votre question..." onkeydown="if(event.key==='Enter')sendChat()"/>
-    <button class="chat-send" onclick="sendChat()">→</button>
-  </div>
-</div>
-
-<script>
-  // ── COUNTDOWN ──
-  function updateCountdown() {
-    const deadline = new Date('2026-06-30T23:59:59');
-    const now = new Date();
-    const diff = deadline - now;
-    if (diff <= 0) {
-      document.getElementById('nav-countdown').textContent = 'DÉLAI DÉPASSÉ';
-      document.getElementById('countdown-days').textContent = '0';
-      return;
-    }
-    const days = Math.floor(diff / 86400000);
-    const hours = Math.floor((diff % 86400000) / 3600000);
-    const mins = Math.floor((diff % 3600000) / 60000);
-    const secs = Math.floor((diff % 60000) / 1000);
-    document.getElementById('nav-countdown').textContent = `J-${days} ${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-    document.getElementById('countdown-days').textContent = days;
-  }
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
-
-  // ── CHECKER LOGIC ──
-  let currentStep = 1;
-  const totalSteps = 3;
-  let scores = {};
-
-  function toggle(label, id, weight) {
-    label.classList.toggle('checked');
-    if (label.classList.contains('checked')) scores[id] = weight;
-    else delete scores[id];
-  }
-
-  function getTotalScore() {
-    return Object.values(scores).reduce((a, b) => a + b, 0);
-  }
-
-  function updateProgress(step) {
-    const pct = Math.round((step / totalSteps) * 100);
-    document.getElementById('progress-fill').style.width = pct + '%';
-    document.getElementById('progress-label').textContent = `Étape ${step} sur ${totalSteps}`;
-    const titles = ['Étape 1 / 3 — Infrastructure technique','Étape 2 / 3 — Conformité réglementaire','Étape 3 / 3 — Organisation & gouvernance'];
-    document.getElementById('step-title').textContent = titles[step - 1] || 'Résultats';
-  }
-
-  function nextStep() {
-    document.getElementById('step-' + currentStep).classList.remove('active');
-    if (currentStep < totalSteps) {
-      currentStep++;
-      document.getElementById('step-' + currentStep).classList.add('active');
-      document.getElementById('btn-prev').style.display = 'inline-flex';
-      if (currentStep === totalSteps) document.getElementById('btn-next').textContent = 'Voir mes résultats →';
-      updateProgress(currentStep);
-    } else {
-      showResults();
-    }
-  }
-
-  function prevStep() {
-    document.getElementById('step-' + currentStep).classList.remove('active');
-    currentStep--;
-    document.getElementById('step-' + currentStep).classList.add('active');
-    if (currentStep === 1) document.getElementById('btn-prev').style.display = 'none';
-    document.getElementById('btn-next').textContent = 'Suivant →';
-    updateProgress(currentStep);
-  }
-
-  function showResults() {
-    for (let i = 1; i <= totalSteps; i++) {
-      const el = document.getElementById('step-' + i);
-      if (el) el.classList.remove('active');
-    }
-    document.getElementById('checker-nav').style.display = 'none';
-    document.getElementById('result-panel').style.display = 'block';
-    document.getElementById('step-title').textContent = 'Votre diagnostic PI-SPI';
-    document.getElementById('progress-fill').style.width = '100%';
-    document.getElementById('progress-label').textContent = 'Analyse complète';
-
-    const score = getTotalScore();
-    // Animate score
-    let current = 0;
-    const target = score;
-    const interval = setInterval(() => {
-      current = Math.min(current + 2, target);
-      document.getElementById('score-display').textContent = current;
-      const circumference = 427;
-      const offset = circumference - (current / 100) * circumference;
-      document.getElementById('ring-fill').style.strokeDashoffset = offset;
-      if (current >= target) clearInterval(interval);
-    }, 20);
-
-    // Color ring
-    let ringColor = '#EF4444';
-    if (score >= 70) ringColor = '#22C55E';
-    else if (score >= 40) ringColor = '#F59E0B';
-    document.getElementById('ring-fill').style.stroke = ringColor;
-
-    // Verdict
-    const verdictBox = document.getElementById('verdict-box');
-    if (score >= 70) {
-      verdictBox.className = 'result-verdict verdict-pret';
-      verdictBox.innerHTML = `<div class="verdict-title" style="color:var(--success)">✅ Prêt pour la connexion PI-SPI</div><div class="verdict-text">Votre institution présente un niveau de préparation satisfaisant. Quelques ajustements mineurs restent à finaliser. Nous pouvons vous accompagner pour la validation finale et la soumission du dossier BCEAO.</div>`;
-    } else if (score >= 40) {
-      verdictBox.className = 'result-verdict verdict-partiel';
-      verdictBox.innerHTML = `<div class="verdict-title" style="color:var(--warning)">⚠ Préparation partielle — Action urgente requise</div><div class="verdict-text">Des lacunes importantes subsistent. Avec ${30 - Math.floor((new Date('2026-06-30') - new Date()) / 86400000)} jours restants, une intervention spécialisée est nécessaire. Notre offre Gold peut combler les écarts en 15 jours ouvrables.</div>`;
-    } else {
-      verdictBox.className = 'result-verdict verdict-critique';
-      verdictBox.innerHTML = `<div class="verdict-title" style="color:var(--danger)">🔴 Situation critique — Risque de sanction BCEAO</div><div class="verdict-text">Votre institution n'est pas prête pour PI-SPI. Sans intervention immédiate, vous risquez des sanctions administratives et une suspension d'agrément. Contactez-nous aujourd'hui : notre équipe peut mobiliser une réponse d'urgence en 72h.</div>`;
-    }
-
-    // Gaps
-    const allCriteria = [
-      {id:'infra_api', name:'Intégration API REST PI-SPI'},
-      {id:'infra_mtls', name:'Certificat mTLS'},
-      {id:'infra_oauth', name:'OAuth 2.0 Client Credentials'},
-      {id:'infra_sandbox', name:'Tests sandbox BCEAO'},
-      {id:'reg_dossier', name:'Dossier de connexion BCEAO'},
-      {id:'reg_kyc', name:'KYC adapté PI-SPI'},
-      {id:'reg_sla', name:'SLA < 5 secondes'},
-      {id:'reg_incident', name:'Plan de gestion des incidents'},
-      {id:'org_equipe', name:'Équipe projet désignée'},
-      {id:'org_formation', name:'Formation équipes'},
-      {id:'org_budget', name:'Budget validé'},
-    ];
-    const gapsList = document.getElementById('gaps-list');
-    gapsList.innerHTML = '';
-    allCriteria.forEach(c => {
-      const li = document.createElement('li');
-      if (scores[c.id]) {
-        li.className = 'gap-ok';
-        li.innerHTML = `<span style="color:var(--success)">✓</span> ${c.name} — <span style="color:var(--text-muted)">Conforme</span>`;
-      } else {
-        li.innerHTML = `<span></span> ${c.name} — <span style="color:var(--warning)">Action requise</span>`;
-      }
-      gapsList.appendChild(li);
-    });
-  }
-
-  function resetChecker() {
-    scores = {};
-    currentStep = 1;
-    document.getElementById('result-panel').style.display = 'none';
-    document.getElementById('checker-nav').style.display = 'flex';
-    document.getElementById('btn-prev').style.display = 'none';
-    document.getElementById('btn-next').textContent = 'Suivant →';
-    document.querySelectorAll('.criteria-item').forEach(el => el.classList.remove('checked'));
-    document.getElementById('step-1').classList.add('active');
-    for (let i = 2; i <= 3; i++) document.getElementById('step-' + i).classList.remove('active');
-    updateProgress(1);
-    document.getElementById('step-title').textContent = 'Étape 1 / 3 — Infrastructure technique';
-  }
-
-  // ── PDF MODAL ──
-  function openPdfModal() {
-    document.getElementById('pdf-modal').style.display = 'flex';
-  }
-  function closePdfModal() {
-    document.getElementById('pdf-modal').style.display = 'none';
-  }
-
-  // ── PDF GENERATOR — FOND BLANC, LISIBLE PARTOUT ──
-  function generatePDF() {
-    const institution = document.getElementById('pdf-institution').value.trim() || 'Institution non renseignée';
-    const contact     = document.getElementById('pdf-contact').value.trim()     || 'Direction Générale';
-    const type        = document.getElementById('pdf-type').value;
-    const pays        = document.getElementById('pdf-pays').value;
-    const score       = getTotalScore();
-    const now         = new Date();
-    const dateStr     = now.toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'});
-    const daysLeft    = Math.max(0, Math.floor((new Date('2026-06-30') - now) / 86400000));
-    const refNum      = 'PISPI-' + now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(Math.floor(Math.random()*9000)+1000);
-
-    // Couleurs solides — JAMAIS de variables CSS
-    let tierColor, tierLabel, tierBg, recommendation, urgence, offerName, offerPrice, offerDesc;
-    if (score >= 70) {
-      tierColor = [22,163,74]; tierBg = [220,252,231]; tierLabel = 'PRET — Conformite satisfaisante';
-      recommendation = "Votre institution presente un bon niveau de preparation PI-SPI. Nous recommandons un audit de validation finale pour securiser la connexion avant le 30 juin 2026.";
-      urgence = 'FAIBLE'; offerName = 'Bronze — Audit & Validation'; offerPrice = '250 000 FCFA';
-      offerDesc = 'Validation finale, soumission dossier BCEAO, rapport certifie.';
-    } else if (score >= 40) {
-      tierColor = [180,83,9]; tierBg = [254,243,199]; tierLabel = 'PARTIEL — Lacunes significatives';
-      recommendation = "Des actions correctives urgentes sont necessaires. Notre Offre Gold peut combler les ecarts techniques et reglementaires en 15 jours ouvrables. Ne pas attendre le 30 juin.";
-      urgence = 'ELEVEE'; offerName = 'Gold — Integration Assistee'; offerPrice = '750 000 FCFA';
-      offerDesc = 'Integration technique complete, tests sandbox valides, accompagnement BCEAO.';
-    } else {
-      tierColor = [185,28,28]; tierBg = [254,226,226]; tierLabel = 'CRITIQUE — Risque de sanction BCEAO';
-      recommendation = "Situation d'urgence reglementaire. Sans intervention immediate, votre institution s'expose a des sanctions BCEAO. Mobilisation d'urgence disponible sous 72 heures.";
-      urgence = 'CRITIQUE'; offerName = 'Platinum — Conformite Totale'; offerPrice = '1 500 000 FCFA';
-      offerDesc = 'Mobilisation urgence 72h, gouvernance complete, support 12 mois.';
-    }
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const W = 210, M = 18;
-
-    // ═══════════════════════════════════════════════════
-    // PAGE 1 — COUVERTURE
-    // ═══════════════════════════════════════════════════
-
-    // Fond blanc total
-    doc.setFillColor(255,255,255);
-    doc.rect(0,0,W,297,'F');
-
-    // Bande or en haut (10mm)
-    doc.setFillColor(212,168,83);
-    doc.rect(0,0,W,12,'F');
-
-    // Texte dans bande or
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(10); doc.setTextColor(255,255,255);
-    doc.text('afrIAgenesis(r)', M, 8);
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(8);
-    doc.text('Ref: ' + refNum + '   |   CONFIDENTIEL', W-M, 8, {align:'right'});
-
-    // Titre principal
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(32); doc.setTextColor(20,20,20);
-    doc.text('RAPPORT DE', M, 38);
-    doc.text('CONFORMITE', M, 52);
-    doc.setTextColor(180,120,20);
-    doc.text('PI-SPI', M, 66);
-
-    // Ligne décorative gold
-    doc.setDrawColor(212,168,83); doc.setLineWidth(1);
-    doc.line(M, 72, 120, 72);
-
-    // Sous-titre
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(10); doc.setTextColor(80,80,80);
-    doc.text('Plateforme Interoperable du Systeme de Paiement Instantane', M, 80);
-    doc.text('Banque Centrale des Etats de l\'Afrique de l\'Ouest (BCEAO)', M, 87);
-
-    // Cercle score
-    const cx = 168, cy = 52, r = 24;
-    doc.setFillColor(...tierBg);
-    doc.circle(cx, cy, r, 'F');
-    doc.setDrawColor(...tierColor); doc.setLineWidth(2);
-    doc.circle(cx, cy, r, 'S');
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(22); doc.setTextColor(...tierColor);
-    doc.text(String(score), cx, cy+4, {align:'center'});
-    doc.setFontSize(8); doc.setTextColor(80,80,80);
-    doc.text('/100', cx, cy+11, {align:'center'});
-
-    // Badge tier sous le cercle
-    doc.setFillColor(...tierColor);
-    doc.roundedRect(cx-20, cy+16, 40, 8, 2, 2, 'F');
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(7); doc.setTextColor(255,255,255);
-    const tierShort = score >= 70 ? 'PRET' : score >= 40 ? 'PARTIEL' : 'CRITIQUE';
-    doc.text(tierShort, cx, cy+21, {align:'center'});
-
-    // Encart institution (fond gris très clair)
-    doc.setFillColor(248,248,248);
-    doc.roundedRect(M, 96, W-2*M, 52, 3, 3, 'F');
-    doc.setDrawColor(212,168,83); doc.setLineWidth(0.5);
-    doc.line(M, 96, M, 148); // barre gauche gold
-
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(7); doc.setTextColor(180,120,20);
-    doc.text('INSTITUTION EVALUEE', M+6, 105);
-    doc.setFontSize(13); doc.setTextColor(20,20,20);
-    // Tronquer si trop long
-    const instTxt = institution.length > 45 ? institution.substring(0,45)+'...' : institution;
-    doc.text(instTxt, M+6, 115);
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(9); doc.setTextColor(100,100,100);
-    doc.text(type + ' — ' + pays, M+6, 122);
-
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(7); doc.setTextColor(180,120,20);
-    doc.text('PREPARE POUR', M+6, 133);
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(10); doc.setTextColor(20,20,20);
-    doc.text(contact, M+6, 141);
-
-    // Alerte deadline — fond rouge clair
-    doc.setFillColor(254,226,226);
-    doc.roundedRect(M, 158, W-2*M, 20, 3, 3, 'F');
-    doc.setDrawColor(185,28,28); doc.setLineWidth(0.5);
-    doc.roundedRect(M, 158, W-2*M, 20, 3, 3, 'S');
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(9); doc.setTextColor(185,28,28);
-    doc.text('DEADLINE REGLEMENTAIRE BCEAO : 30 juin 2026', M+6, 166);
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(8); doc.setTextColor(100,20,20);
-    doc.text('Connexion obligatoire — ' + daysLeft + ' jours restants — Sanctions en cas de non-conformite', M+6, 173);
-
-    // Date génération
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(8); doc.setTextColor(120,120,120);
-    doc.text('Rapport genere le : ' + dateStr, M, 188);
-
-    // Proverbe
-    doc.setDrawColor(200,200,200); doc.setLineWidth(0.3);
-    doc.line(M, 230, W-M, 230);
-    doc.setFont('helvetica','italic');
-    doc.setFontSize(9); doc.setTextColor(120,120,120);
-    doc.text('"Luy dem luy dellu, dafa yomb." — Proverbe Wolof (Senegal)', W/2, 240, {align:'center'});
-    doc.setFontSize(8);
-    doc.text('Ce qui part et revient, ca facilite le chemin.', W/2, 247, {align:'center'});
-
-    // Footer page 1
-    doc.setFillColor(212,168,83);
-    doc.rect(0,285,W,12,'F');
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(8); doc.setTextColor(255,255,255);
-    doc.text('+229 01 61 10 73 73  |  lanickconsult@gmail.com  |  afrIAgenesis(r)', W/2, 293, {align:'center'});
-
-    // ═══════════════════════════════════════════════════
-    // PAGE 2 — SYNTHESE EXECUTIVE
-    // ═══════════════════════════════════════════════════
-    doc.addPage();
-    doc.setFillColor(255,255,255); doc.rect(0,0,W,297,'F');
-
-    // Header
-    doc.setFillColor(212,168,83); doc.rect(0,0,W,12,'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(255,255,255);
-    doc.text('afrIAgenesis(r) — PI-SPI Readiness Checker', M, 8);
-    doc.setFont('helvetica','normal'); doc.setFontSize(8);
-    doc.text('Ref: ' + refNum + '   |   Page 2/3', W-M, 8, {align:'right'});
-
-    let y = 22;
-    doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(20,20,20);
-    doc.text('SYNTHESE EXECUTIVE', M, y); y += 5;
-    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(100,100,100);
-    doc.text('A l\'attention de la Direction Generale', M, y); y += 3;
-    doc.setDrawColor(212,168,83); doc.setLineWidth(0.8);
-    doc.line(M, y, W-M, y); y += 8;
-
-    // Bloc score global
-    doc.setFillColor(...tierBg);
-    doc.roundedRect(M, y, W-2*M, 28, 3, 3, 'F');
-    doc.setFillColor(...tierColor); doc.rect(M, y, 5, 28, 'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...tierColor);
-    doc.text('SCORE GLOBAL DE CONFORMITE PI-SPI', M+10, y+9);
-    doc.setFontSize(24); doc.setTextColor(20,20,20);
-    doc.text(score + '/100', M+10, y+23);
-    doc.setFontSize(10); doc.setTextColor(...tierColor);
-    doc.text(tierLabel, M+55, y+23);
-    y += 36;
-
-    // Verdict
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(180,120,20);
-    doc.text('VERDICT', M, y); y += 6;
-    doc.setFillColor(252,252,248);
-    doc.roundedRect(M, y, W-2*M, 22, 2, 2, 'F');
-    doc.setDrawColor(212,168,83); doc.setLineWidth(0.3);
-    doc.line(M, y, M, y+22);
-    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(40,40,40);
-    const recLines = doc.splitTextToSize(recommendation, W-2*M-10);
-    doc.text(recLines, M+6, y+7);
-    y += 30;
-
-    // 3 domaines
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(180,120,20);
-    doc.text('SCORE PAR DOMAINE', M, y); y += 6;
-    const domains = [
-      {label:'Infrastructure\ntechnique',  max:60, ids:['infra_api','infra_mtls','infra_oauth','infra_sandbox']},
-      {label:'Conformite\nreglementaire', max:30, ids:['reg_dossier','reg_kyc','reg_sla','reg_incident']},
-      {label:'Gouvernance\norganisation',  max:10, ids:['org_equipe','org_formation','org_budget']},
-    ];
-    const colW = (W-2*M-8)/3;
-    domains.forEach((d,i) => {
-      const ds = d.ids.reduce((a,id) => a+(scores[id]||0), 0);
-      const pct = Math.round((ds/d.max)*100);
-      const col = pct>=70?[22,163,74]:pct>=40?[180,83,9]:[185,28,28];
-      const bg  = pct>=70?[220,252,231]:pct>=40?[254,243,199]:[254,226,226];
-      const ox = M + i*(colW+4);
-      doc.setFillColor(...bg);
-      doc.roundedRect(ox, y, colW, 30, 3, 3, 'F');
-      doc.setFont('helvetica','bold'); doc.setFontSize(18); doc.setTextColor(...col);
-      doc.text(ds+'/'+d.max, ox+colW/2, y+14, {align:'center'});
-      doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(80,80,80);
-      const dl = doc.splitTextToSize(d.label, colW-4);
-      doc.text(dl, ox+colW/2, y+22, {align:'center'});
-    });
-    y += 38;
-
-    // Urgence
-    doc.setFillColor(248,248,248);
-    doc.roundedRect(M, y, W-2*M, 14, 2, 2, 'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(80,80,80);
-    doc.text('NIVEAU D\'URGENCE :', M+6, y+9);
-    doc.setTextColor(...tierColor);
-    doc.text(urgence, M+52, y+9);
-    doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
-    doc.text('Jours restants avant deadline : ' + daysLeft, W-M-6, y+9, {align:'right'});
-    y += 22;
-
-    // Offre recommandée
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(180,120,20);
-    doc.text('OFFRE RECOMMANDEE', M, y); y += 6;
-    doc.setFillColor(255,251,235);
-    doc.roundedRect(M, y, W-2*M, 26, 3, 3, 'F');
-    doc.setDrawColor(212,168,83); doc.setLineWidth(0.8);
-    doc.roundedRect(M, y, W-2*M, 26, 3, 3, 'S');
-    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(180,120,20);
-    doc.text(offerName, M+8, y+10);
-    doc.setFontSize(10); doc.setTextColor(20,20,20);
-    doc.text(offerPrice, W-M-8, y+10, {align:'right'});
-    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(80,80,80);
-    doc.text(offerDesc, M+8, y+20);
-    y += 34;
-
-    // CTA gold
-    doc.setFillColor(212,168,83);
-    doc.roundedRect(M, y, W-2*M, 18, 3, 3, 'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(255,255,255);
-    doc.text('Contacter afrIAgenesis(r) maintenant', W/2, y+8, {align:'center'});
-    doc.setFont('helvetica','normal'); doc.setFontSize(8);
-    doc.text('+229 01 61 10 73 73  |  lanickconsult@gmail.com  |  wa.me/22901611073', W/2, y+15, {align:'center'});
-
-    // Footer
-    doc.setFillColor(212,168,83); doc.rect(0,285,W,12,'F');
-    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(255,255,255);
-    doc.text('afrIAgenesis(r) | CEA Consulting SAS | lanickconsult@gmail.com', M, 293);
-    doc.text('Page 2/3 — ' + dateStr, W-M, 293, {align:'right'});
-
-    // ═══════════════════════════════════════════════════
-    // PAGE 3 — DETAIL TECHNIQUE (DSI)
-    // ═══════════════════════════════════════════════════
-    doc.addPage();
-    doc.setFillColor(255,255,255); doc.rect(0,0,W,297,'F');
-
-    // Header
-    doc.setFillColor(212,168,83); doc.rect(0,0,W,12,'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(255,255,255);
-    doc.text('afrIAgenesis(r) — PI-SPI Readiness Checker', M, 8);
-    doc.setFont('helvetica','normal'); doc.setFontSize(8);
-    doc.text('Ref: ' + refNum + '   |   Page 3/3', W-M, 8, {align:'right'});
-
-    y = 22;
-    doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(20,20,20);
-    doc.text('RAPPORT TECHNIQUE DETAILLE', M, y); y += 5;
-    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(100,100,100);
-    doc.text('A l\'attention de la DSI / Responsable Conformite', M, y); y += 3;
-    doc.setDrawColor(212,168,83); doc.setLineWidth(0.8);
-    doc.line(M, y, W-M, y); y += 8;
-
-    // Titre tableau
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(180,120,20);
-    doc.text('DETAIL DES 11 CRITERES D\'EVALUATION', M, y); y += 6;
-
-    // En-tête tableau
-    doc.setFillColor(30,30,30);
-    doc.rect(M, y, W-2*M, 8, 'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(255,255,255);
-    doc.text('STATUT',    M+4,    y+5.5);
-    doc.text('CRITERE',   M+32,   y+5.5);
-    doc.text('CATEGORIE', M+122,  y+5.5);
-    doc.text('POIDS',     W-M-12, y+5.5);
-    y += 8;
-
-    const allCriteria = [
-      {id:'infra_api',     name:'Integration API REST PI-SPI',     weight:20, cat:'Technique'},
-      {id:'infra_mtls',    name:'Certificat mTLS deploye',         weight:15, cat:'Technique'},
-      {id:'infra_oauth',   name:'OAuth 2.0 Client Credentials',    weight:15, cat:'Technique'},
-      {id:'infra_sandbox', name:'Tests sandbox BCEAO reussis',     weight:10, cat:'Technique'},
-      {id:'reg_dossier',   name:'Dossier connexion BCEAO soumis',  weight:10, cat:'Reglementaire'},
-      {id:'reg_kyc',       name:'KYC & LCB-FT adapte PI-SPI',     weight:10, cat:'Reglementaire'},
-      {id:'reg_sla',       name:'SLA < 5 secondes documente',      weight:5,  cat:'Reglementaire'},
-      {id:'reg_incident',  name:'Plan gestion des incidents',      weight:5,  cat:'Reglementaire'},
-      {id:'org_equipe',    name:'Equipe projet PI-SPI designee',   weight:5,  cat:'Gouvernance'},
-      {id:'org_formation', name:'Formation des equipes realisee',  weight:3,  cat:'Gouvernance'},
-      {id:'org_budget',    name:'Budget integration valide',       weight:2,  cat:'Gouvernance'},
-    ];
-
-    allCriteria.forEach((c,i) => {
-      const ok = !!scores[c.id];
-      const rowBg = i%2===0 ? [250,250,250] : [255,255,255];
-      doc.setFillColor(...rowBg);
-      doc.rect(M, y, W-2*M, 9, 'F');
-      doc.setDrawColor(220,220,220); doc.setLineWidth(0.2);
-      doc.line(M, y+9, W-M, y+9);
-
-      // Statut
-      doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
-      if (ok) {
-        doc.setTextColor(22,163,74);
-        doc.text('CONFORME', M+4, y+6);
-      } else {
-        doc.setTextColor(185,28,28);
-        doc.text('GAP', M+4, y+6);
-      }
-      // Nom
-      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(30,30,30);
-      doc.text(c.name, M+32, y+6);
-      // Catégorie
-      doc.setFontSize(7); doc.setTextColor(100,100,100);
-      doc.text(c.cat, M+122, y+6);
-      // Poids
-      doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(180,120,20);
-      doc.text(c.weight+'pts', W-M-14, y+6);
-      y += 9;
-    });
-
-    y += 8;
-
-    // Architecture requise
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(180,120,20);
-    doc.text('ARCHITECTURE PI-SPI REQUISE — 6 ETAPES', M, y); y += 6;
-
-    const arch = [
-      {n:'1', t:'Inscription portail developpeur', d:'developer.pispi.bceao.int — creer un compte institution'},
-      {n:'2', t:'Obtention des credentials',       d:'clientId / clientSecret / API Key fournis par la BCEAO'},
-      {n:'3', t:'Certificat mTLS client',          d:'Generation + configuration authentification mutuelle TLS'},
-      {n:'4', t:'OAuth 2.0 Client Credentials',    d:'Appel endpoint token AWS Cognito — obtention access_token'},
-      {n:'5', t:'Tests sandbox',                   d:'sandbox.api.pi-bceao.com/piz/v1/ — alias, virements test'},
-      {n:'6', t:'Connexion production',            d:'Soumission dossier BCEAO, validation, go-live officiel'},
-    ];
-    arch.forEach((s,i) => {
-      const bg = i%2===0 ? [248,248,248] : [255,255,255];
-      doc.setFillColor(...bg); doc.rect(M, y, W-2*M, 10, 'F');
-      doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(212,168,83);
-      doc.text(s.n, M+4, y+7);
-      doc.setFontSize(8); doc.setTextColor(20,20,20);
-      doc.text(s.t, M+12, y+7);
-      doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(100,100,100);
-      doc.text(s.d, M+70, y+7);
-      y += 10;
-    });
-
-    y += 6;
-    // Confidentialité
-    doc.setDrawColor(200,200,200); doc.setLineWidth(0.3);
-    doc.line(M, y, W-M, y); y += 5;
-    doc.setFont('helvetica','italic'); doc.setFontSize(7.5); doc.setTextColor(130,130,130);
-    doc.text('Document CONFIDENTIEL — Produit automatiquement par PI-SPI Readiness Checker(tm) — afrIAgenesis(r)', W/2, y, {align:'center'});
-    doc.text('Ne constitue pas un avis juridique certifie. Pour un audit officiel, contactez notre equipe.', W/2, y+5, {align:'center'});
-
-    // Footer
-    doc.setFillColor(212,168,83); doc.rect(0,285,W,12,'F');
-    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(255,255,255);
-    doc.text('afrIAgenesis(r) | CEA Consulting SAS | lanickconsult@gmail.com', M, 293);
-    doc.text('Page 3/3 — ' + dateStr, W-M, 293, {align:'right'});
-
-    // SAVE
-    const filename = 'PISPI-Rapport-' + institution.replace(/[^a-zA-Z0-9]/g,'-').substring(0,30) + '-' + now.getFullYear() + '.pdf';
-    doc.save(filename);
-    closePdfModal();
-  }
-
-  // ── CHATBOT ──
-  const chatKB = {
-    "pi-spi": "PI-SPI (Plateforme Interopérable du Système de Paiement Instantané) est l'infrastructure de paiement instantané mise en place par la BCEAO pour unifier les transactions interbancaires dans l'espace UEMOA. Elle permet des virements instantanés 24h/7j en moins de 5 secondes.",
-    "concerné": "Sont concernées toutes les institutions financières agréées dans l'espace UEMOA : les 59 banques commerciales, les 9 Établissements de Monnaie Électronique (EME), les 11 Systèmes Financiers Décentralisés (SFD) et 1 Établissement de Paiement. Soit 122 institutions au total.",
-    "sanction": "Les institutions non connectées au 30 juin 2026 s'exposent à des sanctions administratives de la BCEAO pouvant aller jusqu'à la suspension temporaire de l'agrément, des avertissements officiels et des pénalités financières selon l'instruction BCEAO n°007-08-2020.",
-    "délai": "Il reste peu de temps avant la deadline du 30 juin 2026. Une intégration technique complète (API + mTLS + tests sandbox) nécessite en moyenne 3 à 6 semaines. Une intervention urgente afrIAgenesis® peut ramener ce délai à 15 jours ouvrables avec l'offre Gold.",
-    "coût": "Le coût d'intégration PI-SPI varie selon votre infrastructure existante. afrIAgenesis® propose des offres à partir de 250 000 FCFA (Audit), 750 000 FCFA (Intégration complète Gold) et 1 500 000 FCFA (Conformité Totale Platinum).",
-    "mtls": "Oui, le mTLS (mutual TLS) est obligatoire pour se connecter à la plateforme PI-SPI. Il requiert l'émission d'un certificat client auprès de la BCEAO, configuré avec votre clientId et clientSecret obtenus sur le portail developer.pispi.bceao.int.",
-    "default": "Je n'ai pas de réponse précise à cette question. Pour une assistance personnalisée, contactez notre équipe : +229 01 61 10 73 73 (Bénin) ou lanickconsult@gmail.com."
-  };
-
-  function toggleChat() {
-    document.getElementById('chatbot-panel').classList.toggle('open');
-  }
-
-  function ask(q) {
-    document.getElementById('chat-input').value = q;
-    sendChat();
-  }
-
-  function sendChat() {
-    const input = document.getElementById('chat-input');
-    const q = input.value.trim();
-    if (!q) return;
-    const msgs = document.getElementById('chat-messages');
-    const userMsg = document.createElement('div');
-    userMsg.className = 'msg msg-user'; userMsg.textContent = q;
-    msgs.appendChild(userMsg);
-    input.value = '';
-
-    setTimeout(() => {
-      const qLow = q.toLowerCase();
-      let answer = chatKB.default;
-      if (qLow.includes('pi-spi') || qLow.includes('pispi') || qLow.includes('qu\'est')) answer = chatKB['pi-spi'];
-      else if (qLow.includes('concern') || qLow.includes('qui')) answer = chatKB['concerné'];
-      else if (qLow.includes('sanction') || qLow.includes('pénalité') || qLow.includes('risque')) answer = chatKB['sanction'];
-      else if (qLow.includes('délai') || qLow.includes('temps') || qLow.includes('intégr')) answer = chatKB['délai'];
-      else if (qLow.includes('coût') || qLow.includes('prix') || qLow.includes('tarif') || qLow.includes('fcfa')) answer = chatKB['coût'];
-      else if (qLow.includes('mtls') || qLow.includes('certificat') || qLow.includes('tls')) answer = chatKB['mtls'];
-      const botMsg = document.createElement('div');
-      botMsg.className = 'msg msg-bot'; botMsg.textContent = answer;
-      msgs.appendChild(botMsg);
-      msgs.scrollTop = msgs.scrollHeight;
-    }, 600);
-    msgs.scrollTop = msgs.scrollHeight;
-  }
-</script>
 </body>
 </html>
