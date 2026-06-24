@@ -970,7 +970,7 @@ footer {
 
 .footer-proverb {
   margin:        2rem auto;
-  max-width:     500px;
+  max-width:     80%;
   font-style:    italic;
   color:         var(--text-muted);
   font-size:     0.9rem;
