@@ -1,4 +1,4 @@
-const API = "http://localhost:5050/speak";
+const API = "https://afriiagenenis-1.onrender.com/speak";
 
 const IMG = {
   salutation : "assets/scenarios/salutation.png",
