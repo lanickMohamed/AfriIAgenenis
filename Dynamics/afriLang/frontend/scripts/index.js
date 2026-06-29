@@ -54,7 +54,7 @@ const SPEECHES = [
   },
 ];
 
-// ── DOM refs
+
 const bubbleFon     = document.getElementById("bubble-fon");
 const bubbleFr      = document.getElementById("bubble-fr");
 const bubbleBox     = document.getElementById("speech-bubble");
@@ -68,7 +68,7 @@ const scenarioPH    = document.getElementById("scenario-placeholder");
 
 let currentActive = null;
 
-// ── build phrases list
+
 PHRASES.forEach((p) => {
   const el = document.createElement("div");
   el.className = "phrase-item";
@@ -85,7 +85,7 @@ PHRASES.forEach((p) => {
 });
 
 const sep = document.createElement("div");
-sep.style.cssText = "margin:10px 0 6px;font-size:10px;letter-spacing:2px;color:var(--gold);padding:0 4px;opacity:.7;";
+sep.style.cssText = "margin:10px 0 6px;font-size:10px;letter-spacing:2px;color:var(--gold);padding:0 4px;opacity:.1; font-weight:600;";
 sep.textContent = "── DISCOURS ──";
 phrasesList.appendChild(sep);
 
@@ -104,20 +104,20 @@ SPEECHES.forEach((s) => {
   phrasesList.appendChild(el);
 });
 
-// ── speaking state
+
 function setSpeaking(on) {
   bubbleBox.classList.toggle("speaking", on);
   avatarRing.classList.toggle("speaking", on);
   avatarStatus.textContent = on ? "EN TRAIN DE PARLER" : ".....";
 }
 
-// ── scenario + image
+
 function setScenario(s) {
   scenarioLabel.textContent = s.label;
   scenarioDesc.textContent  = s.desc;
   if (s.img) {
     scenarioImg.style.opacity = "0";
-    scenarioImg.style.display = "block";
+    scenarioImg.style.display = "flex";
     scenarioImg.src = s.img;
     scenarioImg.onload = () => {
       scenarioPH.style.display = "none";
@@ -126,7 +126,7 @@ function setScenario(s) {
   }
 }
 
-// ── speak Fon phrase
+
 async function speak(fon, fr, scenario, el) {
   if (currentActive) currentActive.classList.remove("active");
   currentActive = el;
@@ -154,7 +154,7 @@ async function speak(fon, fr, scenario, el) {
   }
 }
 
-// ── speak long text (discours)
+
 async function speakText(textToSpeak, displayText, scenario, el) {
   if (currentActive) currentActive.classList.remove("active");
   currentActive = el;

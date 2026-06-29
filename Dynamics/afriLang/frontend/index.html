@@ -35,7 +35,24 @@
   <!-- CENTER -->
   <main class="center">
 
-    <!-- speech bubble top -->
+    <!-- avatar bottom center -->
+    <div class="avatar-zone">
+      <div class="avatar-ring" id="avatar-ring"></div>
+      <img
+        class="avatar-img"
+        src="assets/images/avatar1.png"
+        alt="Avatar IA"
+      />
+      <div class="avatar-status" id="avatar-status">.....</div>
+    </div>
+
+  </main>
+
+  <!-- RIGHT — scénario -->
+  <aside class="panel-right">
+
+    <div class="panel-title">Scénario</div>
+
     <div class="speech-bubble" id="speech-bubble">
       <div class="bubble-lang">Fon — Langue du Bénin</div>
       <div class="bubble-text-fon" id="bubble-fon">
@@ -52,29 +69,13 @@
       </div>
     </div>
 
-    <!-- avatar bottom center -->
-    <div class="avatar-zone">
-      <div class="avatar-ring" id="avatar-ring"></div>
-      <img
-        class="avatar-img"
-        src="assets/images/avatar1.png"
-        alt="Avatar IA"
-      />
-      <div class="avatar-status" id="avatar-status">.....</div>
-    </div>
-
-  </main>
-
-  <!-- RIGHT — scénario -->
-  <aside class="panel-right">
-    <div class="panel-title">Scénario</div>
     <div class="scenario-img-wrap" id="scenario-img-wrap">
       <div class="scenario-placeholder" id="scenario-placeholder">
         <div class="scenario-icon">🌍</div>
         <div>L'image du scénario s'affichera ici selon l'expression sélectionnée</div>
       </div>
       <img id="scenario-img" src="" alt=""
-        style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;opacity:0;transition:opacity .5s;" />
+       />
       <div class="scenario-overlay">
         <div class="scenario-label" id="scenario-label">—</div>
         <div class="scenario-desc" id="scenario-desc">Cliquez sur une expression à gauche</div>

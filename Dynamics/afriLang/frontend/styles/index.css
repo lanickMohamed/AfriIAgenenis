@@ -3,9 +3,11 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
+  
   --bg:        #FFFF;
   --bg2:       #f4f6f9;
   --bg3:       #f7e8cb;
+  --bg4: #f4f6f9cb;
   --gold:      #CC9401;
   --gold2:     #d8bd6a;
   --finText : #0f0800;
@@ -84,6 +86,7 @@ header {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: var(--bg4);
 }
 .panel-title {
   padding: 16px 20px 12px;
@@ -94,6 +97,9 @@ header {
   color: var(--gold);
   flex-shrink: 0;
 }
+.panel-title:nth-child(1){
+  background: var(--bg);
+}
 .phrases-list {
   overflow-y: auto;
   flex: 1;
@@ -103,9 +109,9 @@ header {
 }
 .phrase-item {
   padding: 12px 14px;
-  margin-bottom: 6px;
-  border-radius: 5px;
+  margin-bottom: 0.5rem;
   cursor: pointer;
+  background: var(--bg);
   transition: all .2s;
   border-left:3px solid var(--bg);
   border-bottom: 1px solid var(--bg2);
@@ -118,7 +124,7 @@ header {
 }
 .phrase-item .p-fon {
   font-size: 0.9rem;
-  color: var(--finText);
+  color: var(--text2);
   font-weight: 700;
   line-height: 1.4;
   margin-bottom: 4px;
@@ -150,7 +156,7 @@ header {
   width: 100%;
   max-width: 680px;
   background: var(--bg);
-  padding: 24px 28px;
+  padding: 1.3rem ;
   position: relative;
   transition: box-shadow .3s;
 }
@@ -170,7 +176,7 @@ header {
   min-height: 52px;
 }
 .bubble-divider {
-  height: 2px;
+  height: 1px;
   background: var(--bg3);
   margin: 14px 0;
 }
@@ -178,13 +184,13 @@ header {
   font-size: 0.7rem;
   color: var(--text2);
   font-style: italic;
-  line-height: 1.6;
-  min-height: 40px;
+  min-height: auto;
+  padding: 0.5rem 0;
 }
 .bubble-indicator {
   display: flex;
   gap: 5px;
-  margin-top: 14px;
+  margin-top: 0.5rem;
   align-items: center;
 }
 .dot {
@@ -250,7 +256,7 @@ header {
 /* ── RIGHT PANEL — scénario ── */
 .panel-right {
   grid-area: right;
-  background: var(--bg2);
+  background: var(--bg4);
   border-left: 1px solid rgba(200,168,75,0.1);
   display: flex;
   flex-direction: column;
@@ -258,16 +264,18 @@ header {
 }
 .scenario-img-wrap {
   flex: 1;
-  overflow: hidden;
+  min-height: 0;       
   position: relative;
-  background: var(--bg3);
+  background: var(--bg4);
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 .scenario-img {
-  width: auto;
-  height: 100%;
+  width: 100%;
+  height: auto;
   object-fit: contain;
   opacity: 0.7;
   transition: opacity .5s;
@@ -286,6 +294,7 @@ header {
   font-weight: 500;
   color: var(--bg);
   letter-spacing: 1.5px;
+  width: 100%;
   text-transform: uppercase;
 }
 .scenario-desc {
