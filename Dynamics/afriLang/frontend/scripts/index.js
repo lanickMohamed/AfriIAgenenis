@@ -1,11 +1,11 @@
 const API = "http://localhost:5050/speak";
 
 const IMG = {
-  salutation : "../assets/scenarios/salutation.png",
-  ami        : "../assets/scenarios/dialogue.png",
-  repas      : "../assets/scenarios/repas.png",
-  accord     : "../assets/scenarios/dialogue2.png",
-  transport  : "../assets/scenarios/transport.png",
+  salutation : "assets/scenarios/salutation.png",
+  ami        : "assets/scenarios/dialogue.png",
+  repas      : "assets/scenarios/repas.png",
+  accord     : "assets/scenarios/dialogue2.png",
+  transport  : "assets/scenarios/transport.png",
   recit      : "https://images.unsplash.com/photo-1504198458649-3128b932f49e?w=600&q=80",
   retour     : "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=600&q=80",
   gratitude  : "https://images.unsplash.com/photo-1474314170902-f596b7e67d16?w=600&q=80",
