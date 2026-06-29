@@ -7,6 +7,10 @@ import os
 app = Flask(__name__)
 CORS(app)
 
+@app.route("/", methods=["GET"])
+def index():
+    return jsonify({"status": "ok", "service": "afriLang TTS"})
+
 @app.route("/speak", methods=["POST"])
 def speak():
     data  = request.get_json(force=True)
