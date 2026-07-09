@@ -344,7 +344,6 @@ function generatePDF() {
     [cc1, cc1 + cc2, cc1 + cc2 + cc3].forEach(off => doc.line(M + off, tableStart, M + off, y));
     y += 10;
 
-    // Bloc de validation formelle
     doc.setDrawColor(...LINE); doc.setLineWidth(0.4);
     doc.rect(M, y, W - 2 * M, 22);
     doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...INK_MUT);

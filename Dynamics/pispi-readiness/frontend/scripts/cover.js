@@ -190,7 +190,7 @@ function cover() {
   const maxWait = new Promise(resolve => setTimeout(resolve, maxDuration));
 
   Promise.race([
-    Promise.all([pageReady, minWait]),
+    Promise.all([pageReady, minWait ]),
     maxWait
   ]).then(dismiss);
 }

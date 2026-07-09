@@ -56,7 +56,7 @@ const ALL_CRITERIA = [
   { id: 'infra_api',     name: 'Intégration API REST PI-SPI',       weight: 20, cat: 'Technique'     },
   { id: 'infra_mtls',    name: 'Certificat mTLS déployé',            weight: 15, cat: 'Technique'     },
   { id: 'infra_oauth',   name: 'OAuth 2.0 Client Credentials',       weight: 15, cat: 'Technique'     },
-  { id: 'infra_sandbox', name: 'Tests sandbox BCEAO réussis',        weight: 10, cat: 'Technique'     },
+  { id: 'infra_sandbox', name: ' Tests sandbox BCEAO réussis',        weight: 10, cat: 'Technique'     },
   { id: 'reg_dossier',   name: 'Dossier de connexion BCEAO soumis',  weight: 10, cat: 'Réglementaire' },
   { id: 'reg_kyc',       name: 'KYC & LCB-FT adapté PI-SPI',        weight: 10, cat: 'Réglementaire' },
   { id: 'reg_sla',       name: 'SLA < 10 secondes documenté',         weight:  5, cat: 'Réglementaire' },
