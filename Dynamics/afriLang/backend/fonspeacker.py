@@ -22,7 +22,7 @@ CORPUS = {
     "alume la lampe"                        : "tà zogbain en",
     "Viens s'il te plait"                   : "quin klain wa",
     "Je suis"                               : "Mou ni",
-    "Ali pars est parti à l'ecole"          : "Ali yi azomè",
+    "Ali est parti à l'ecole"          : "Ali yi azomè",
 }
 
 def parler(texte, lang="fr"):

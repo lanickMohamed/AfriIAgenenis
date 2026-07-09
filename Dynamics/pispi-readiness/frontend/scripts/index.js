@@ -1,4 +1,4 @@
-const DEADLINE = new Date('2026-06-30T23:59:59');
+const DEADLINE = new Date('2026-09-30T23:59:59');
 
 function updateCountdown() {
   const now  = new Date();
@@ -22,8 +22,10 @@ setInterval(updateCountdown, 1000);
 
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('btn-scroll-checker')?.addEventListener('click', () => {
-    document.getElementById('checker').scrollIntoView({ behavior: 'smooth' });
+  document.querySelectorAll('.btn-scroll-checker')?.forEach(el =>{
+    el.addEventListener('click', () => {
+      document.getElementById('checker').scrollIntoView({ behavior: 'smooth' });
+    });
   });
   document.getElementById('btn-scroll-offres')?.addEventListener('click', () => {
     document.getElementById('offres').scrollIntoView({ behavior: 'smooth' });
@@ -65,7 +67,7 @@ const ALL_CRITERIA = [
 ];
 
 
-// FIX 1 — toggle : e.preventDefault() bloque le double check natif du label
+
 function toggle(e, label, id, weight) {
   e.preventDefault();
   label.classList.toggle('checked');
@@ -187,7 +189,7 @@ function resetChecker() {
   document.getElementById('result-panel').style.display = 'none';
   document.getElementById('checker-nav').style.display  = 'flex';
   document.getElementById('btn-prev').style.display     = 'none';
-  // FIX 2 — innerHTML pour garder l'icône FA
+
   document.getElementById('btn-next').innerHTML = 'Suivant <i class="fa-solid fa-arrow-right"></i>';
   document.querySelectorAll('.criteria-item').forEach((el) => el.classList.remove('checked'));
   document.getElementById('step-1').classList.add('active');
@@ -202,282 +204,14 @@ function openPdfModal()  { document.getElementById('pdf-modal').style.display = 
 function closePdfModal() { document.getElementById('pdf-modal').style.display = 'none'; }
 
 
-function makeRoundImage(dataUrl, size) {
-  const canvas = document.createElement('canvas');
-  canvas.width  = size;
-  canvas.height = size;
-  const ctx = canvas.getContext('2d');
-  const img = new Image();
-  return new Promise(resolve => {
-    img.onload = () => {
-      ctx.beginPath();
-      ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-      ctx.closePath();
-      ctx.clip();
-      ctx.drawImage(img, 0, 0, size, size);
-      resolve(canvas.toDataURL('image/png'));
-    };
-    img.src = dataUrl;
-  });
-}
-
-function generatePDF() {
-  const institutionInput = document.getElementById('pdf-institution');
-  const institution = institutionInput.value.trim();
-
-  if (!institution) {
-    institutionInput.style.borderColor = 'var(--danger)';
-    institutionInput.focus();
-    institutionInput.placeholder = 'Ce champ est obligatoire';
-    setTimeout(() => {
-      institutionInput.style.borderColor = '';
-      institutionInput.placeholder = 'Ex : Banque de l\'Afrique Solidaire';
-    }, 3000);
-    return;
-  }
-  institutionInput.style.borderColor = '';
-
-  const contact  = document.getElementById('pdf-contact').value.trim() || 'Direction Générale';
-  const type     = document.getElementById('pdf-type').value;
-  const pays     = document.getElementById('pdf-pays').value;
-  const score    = getTotalScore();
-  const now      = new Date();
-  const dateStr  = now.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
-  const daysLeft = Math.max(0, Math.floor((DEADLINE - now) / 86400000));
-  const refNum   = 'PISPI-' + now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(Math.floor(Math.random() * 9000) + 1000);
-
-  let tierColor, tierLabel, tierBg, recommendation, offerName, offerPrice, offerDesc;
-  if (score >= 70) {
-    tierColor = [22,163,74]; tierBg = [220,252,231]; tierLabel = 'PRET — Conformite satisfaisante';
-    recommendation = "Votre institution presente un bon niveau de preparation PI-SPI. Nous recommandons un audit de validation finale pour securiser la connexion avant le 30 juin 2026.";
-    offerName = 'Bronze — Audit & Validation'; offerPrice = '250 000 FCFA';
-    offerDesc = 'Validation finale, soumission dossier BCEAO, rapport certifie.';
-  } else if (score >= 40) {
-    tierColor = [180,83,9]; tierBg = [254,243,199]; tierLabel = 'PARTIEL — Lacunes significatives';
-    recommendation = "Des actions correctives urgentes sont necessaires. Notre Offre Gold peut combler les ecarts en 15 jours ouvrables.";
-    offerName = 'Gold — Integration Assistee'; offerPrice = '750 000 FCFA';
-    offerDesc = 'Integration technique complete, tests sandbox valides, accompagnement BCEAO.';
-  } else {
-    tierColor = [185,28,28]; tierBg = [254,226,226]; tierLabel = 'CRITIQUE — Risque de sanction BCEAO';
-    recommendation = "Situation d'urgence reglementaire. Mobilisation d'urgence disponible sous 72 heures.";
-    offerName = 'Platinum — Conformite Totale'; offerPrice = '1 500 000 FCFA';
-    offerDesc = 'Mobilisation urgence 72h, gouvernance complete, support 12 mois.';
-  }
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-  const W = 210, M = 18;
-  const logoUrl = 'https://raw.githubusercontent.com/lanickMohamed/AfriIAgenenis/main/assets/images/logo.jpg';
-
-  // Dessine le header gold avec logo rond + texte sur toutes les pages
-  // logoRound  : dataUrl PNG circulaire
-  // logoSize   : taille mm du logo dans le header (grand sur p1, petit sur p2/p3)
-  // headerText : texte à gauche après le logo
-  // rightText  : texte à droite (ref ou numéro de page)
-  function drawHeader(logoRound, logoSize, headerText, rightText) {
-    const logoX    = M;
-    const logoY    = (12 - logoSize) / 2;        // centré verticalement dans la barre de 12mm
-    const textX    = M + logoSize + 3;            // texte juste après le logo + 3mm de gap
-    const textY    = 8;
-
-    doc.setFillColor(212, 168, 83);
-    doc.rect(0, 0, W, 12, 'F');
-
-    if (logoRound) {
-      doc.addImage(logoRound, 'PNG', logoX, logoY, logoSize, logoSize);
-    }
-
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.setTextColor(255, 255, 255);
-    doc.text(headerText, textX, textY);
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(255, 255, 255);
-    doc.text(rightText, W - M, textY, { align: 'right' });
-  }
-
-  const addPages = async (logoDataUrl) => {
-    const roundLogo = logoDataUrl ? await makeRoundImage(logoDataUrl, 200) : null;
-
-    // ── PAGE 1 ──────────────────────────────────────────────
-    doc.setFillColor(255, 255, 255); doc.rect(0, 0, W, 297, 'F');
-
-    // header p1 : logo 10mm, texte "afrIAgenesis(r)", ref à droite
-    drawHeader(roundLogo, 10, 'afrIAgenesis(r)', 'Ref: ' + refNum + '   |   CONFIDENTIEL');
-
-
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(32); doc.setTextColor(20, 20, 20);
-    doc.text('RAPPORT DE', M, 38); doc.text('CONFORMITE', M, 52);
-    doc.setTextColor(180, 120, 20); doc.text('PI-SPI', M, 66);
-    doc.setDrawColor(212, 168, 83); doc.setLineWidth(1); doc.line(M, 72, 120, 72);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(80, 80, 80);
-    doc.text('Plateforme Interoperable du Systeme de Paiement Instantane', M, 80);
-    doc.text("Banque Centrale des Etats de l'Afrique de l'Ouest (BCEAO)", M, 87);
-
-    const cx = 168, cy = 52, r = 24;
-    doc.setFillColor(...tierBg); doc.circle(cx, cy, r, 'F');
-    doc.setDrawColor(...tierColor); doc.setLineWidth(2); doc.circle(cx, cy, r, 'S');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(22); doc.setTextColor(...tierColor);
-    doc.text(String(score), cx, cy + 4, { align: 'center' });
-    doc.setFontSize(8); doc.setTextColor(80, 80, 80); doc.text('/100', cx, cy + 11, { align: 'center' });
-    doc.setFillColor(...tierColor); doc.roundedRect(cx - 20, cy + 16, 40, 8, 2, 2, 'F');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(255, 255, 255);
-    const tierShort = score >= 70 ? 'PRET' : score >= 40 ? 'PARTIEL' : 'CRITIQUE';
-    doc.text(tierShort, cx, cy + 21, { align: 'center' });
-
-    doc.setFillColor(248, 248, 248); doc.roundedRect(M, 96, W - 2 * M, 52, 3, 3, 'F');
-    doc.setDrawColor(212, 168, 83); doc.setLineWidth(0.5); doc.line(M, 96, M, 148);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(180, 120, 20);
-    doc.text('INSTITUTION EVALUEE', M + 6, 105);
-    doc.setFontSize(13); doc.setTextColor(20, 20, 20);
-    doc.text(institution.length > 45 ? institution.substring(0, 45) + '...' : institution, M + 6, 115);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(100, 100, 100);
-    doc.text(type + ' — ' + pays, M + 6, 122);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(180, 120, 20);
-    doc.text('PREPARE POUR', M + 6, 133);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(20, 20, 20);
-    doc.text(contact, M + 6, 141);
-
-    doc.setFillColor(254, 226, 226); doc.roundedRect(M, 158, W - 2 * M, 20, 3, 3, 'F');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(185, 28, 28);
-    doc.text('DEADLINE REGLEMENTAIRE BCEAO : 30 juin 2026', M + 6, 166);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(100, 20, 20);
-    doc.text('Connexion obligatoire — ' + daysLeft + ' jours restants', M + 6, 173);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(120, 120, 120);
-    doc.text('Rapport genere le : ' + dateStr, M, 188);
-
-    doc.setFillColor(212, 168, 83); doc.rect(0, 285, W, 12, 'F');
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(255, 255, 255);
-    doc.text('+229 01 61 10 73 73  |  lanickconsult@gmail.com', W / 2, 293, { align: 'center' });
-
-    // ── PAGE 2 ──────────────────────────────────────────────
-    doc.addPage();
-    doc.setFillColor(255, 255, 255); doc.rect(0, 0, W, 297, 'F');
-
-    drawHeader(roundLogo, 10, 'afrIAgenesis(r) — PI-SPI Readiness Checker', 'Page 2/3');
-
-    let y = 22;
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.setTextColor(20, 20, 20);
-    doc.text('SYNTHESE EXECUTIVE', M, y); y += 5;
-    doc.setDrawColor(212, 168, 83); doc.setLineWidth(0.8); doc.line(M, y, W - M, y); y += 8;
-
-    doc.setFillColor(...tierBg); doc.roundedRect(M, y, W - 2 * M, 28, 3, 3, 'F');
-    doc.setFillColor(...tierColor); doc.rect(M, y, 5, 28, 'F');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(...tierColor);
-    doc.text('SCORE GLOBAL DE CONFORMITE PI-SPI', M + 10, y + 9);
-    doc.setFontSize(24); doc.setTextColor(20, 20, 20);
-    doc.text(score + '/100', M + 10, y + 23);
-    doc.setFontSize(10); doc.setTextColor(...tierColor);
-    doc.text(tierLabel, M + 55, y + 23); y += 36;
-
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(180, 120, 20);
-    doc.text('VERDICT', M, y); y += 6;
-    doc.setFillColor(252, 252, 248); doc.roundedRect(M, y, W - 2 * M, 22, 2, 2, 'F');
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(40, 40, 40);
-    doc.text(doc.splitTextToSize(recommendation, W - 2 * M - 10), M + 6, y + 7); y += 30;
-
-    const domains = [
-      { label: 'Infrastructure\ntechnique',  max: 60, ids: ['infra_api', 'infra_mtls', 'infra_oauth', 'infra_sandbox'] },
-      { label: 'Conformite\nreglementaire',  max: 30, ids: ['reg_dossier', 'reg_kyc', 'reg_sla', 'reg_incident'] },
-      { label: 'Gouvernance\norganisation',  max: 10, ids: ['org_equipe', 'org_formation', 'org_budget'] },
-    ];
-    const colW = (W - 2 * M - 8) / 3;
-    domains.forEach((d, i) => {
-      const ds  = d.ids.reduce((a, id) => a + (scores[id] || 0), 0);
-      const pct = Math.round((ds / d.max) * 100);
-      const col = pct >= 70 ? [22, 163, 74] : pct >= 40 ? [180, 83, 9] : [185, 28, 28];
-      const bg  = pct >= 70 ? [220, 252, 231] : pct >= 40 ? [254, 243, 199] : [254, 226, 226];
-      const ox  = M + i * (colW + 4);
-      doc.setFillColor(...bg); doc.roundedRect(ox, y, colW, 30, 3, 3, 'F');
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(...col);
-      doc.text(ds + '/' + d.max, ox + colW / 2, y + 14, { align: 'center' });
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(80, 80, 80);
-      doc.text(doc.splitTextToSize(d.label, colW - 4), ox + colW / 2, y + 22, { align: 'center' });
-    }); y += 38;
-
-    doc.setFillColor(255, 251, 235); doc.roundedRect(M, y, W - 2 * M, 26, 3, 3, 'F');
-    doc.setDrawColor(212, 168, 83); doc.setLineWidth(0.8); doc.roundedRect(M, y, W - 2 * M, 26, 3, 3, 'S');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(180, 120, 20);
-    doc.text(offerName, M + 8, y + 10);
-    doc.setFontSize(10); doc.setTextColor(20, 20, 20); doc.text(offerPrice, W - M - 8, y + 10, { align: 'right' });
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(80, 80, 80);
-    doc.text(offerDesc, M + 8, y + 20); y += 34;
-
-    doc.setFillColor(212, 168, 83); doc.roundedRect(M, y, W - 2 * M, 18, 3, 3, 'F');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(255, 255, 255);
-    doc.text('Contacter afrIAgenesis(r) maintenant', W / 2, y + 8, { align: 'center' });
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
-    doc.text('+229 01 61 10 73 73  |  lanickconsult@gmail.com', W / 2, y + 15, { align: 'center' });
-
-    doc.setFillColor(212, 168, 83); doc.rect(0, 285, W, 12, 'F');
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(255, 255, 255);
-    doc.text('Page 2/3 — ' + dateStr, W - M, 293, { align: 'right' });
-
-    // ── PAGE 3 ──────────────────────────────────────────────
-    doc.addPage();
-    doc.setFillColor(255, 255, 255); doc.rect(0, 0, W, 297, 'F');
-
-    drawHeader(roundLogo, 10, 'afrIAgenesis(r) — Rapport Technique', 'Page 3/3');
-
-    y = 22;
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.setTextColor(20, 20, 20);
-    doc.text('RAPPORT TECHNIQUE DETAILLE', M, y); y += 8;
-    doc.setDrawColor(212, 168, 83); doc.setLineWidth(0.8); doc.line(M, y, W - M, y); y += 8;
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(180, 120, 20);
-    doc.text("DETAIL DES " + ALL_CRITERIA.length + " CRITERES D'EVALUATION", M, y); y += 6;
-
-    doc.setFillColor(30, 30, 30); doc.rect(M, y, W - 2 * M, 8, 'F');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(255, 255, 255);
-    doc.text('STATUT', M + 4, y + 5.5);
-    doc.text('CRITERE', M + 32, y + 5.5);
-    doc.text('CATEGORIE', M + 122, y + 5.5);
-    doc.text('POIDS', W - M - 12, y + 5.5); y += 8;
-
-    ALL_CRITERIA.forEach((c, i) => {
-      const ok = !!scores[c.id];
-      doc.setFillColor(...(i % 2 === 0 ? [250, 250, 250] : [255, 255, 255]));
-      doc.rect(M, y, W - 2 * M, 9, 'F');
-      doc.setDrawColor(220, 220, 220); doc.setLineWidth(0.2); doc.line(M, y + 9, W - M, y + 9);
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5);
-      if (ok) { doc.setTextColor(22, 163, 74);  doc.text('CONFORME', M + 4, y + 6); }
-      else    { doc.setTextColor(185, 28, 28);  doc.text('GAP',      M + 4, y + 6); }
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(30, 30, 30);
-      doc.text(c.name, M + 32, y + 6);
-      doc.setFontSize(7); doc.setTextColor(100, 100, 100); doc.text(c.cat, M + 122, y + 6);
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(180, 120, 20);
-      doc.text(c.weight + 'pts', W - M - 14, y + 6); y += 9;
-    });
-
-    doc.setFillColor(212, 168, 83); doc.rect(0, 285, W, 12, 'F');
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(255, 255, 255);
-    doc.text('afrIAgenesis(r) | CEA Consulting SAS', M, 293);
-    doc.text('Page 3/3 — ' + dateStr, W - M, 293, { align: 'right' });
-
-    const filename = 'PISPI-Rapport-' + institution.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 30) + '-' + now.getFullYear() + '.pdf';
-    doc.save(filename);
-    closePdfModal();
-  };
-
-  fetch(logoUrl)
-    .then(r => r.blob())
-    .then(blob => {
-      const reader = new FileReader();
-      reader.onloadend = () => addPages(reader.result);
-      reader.onerror  = () => addPages(null);
-      reader.readAsDataURL(blob);
-    })
-    .catch(() => addPages(null));
-}
 
 
 const CHAT_KB = {
   'pi-spi':   "PI-SPI est l'infrastructure de paiement instantané BCEAO permettant des virements 24h/7j en moins de 5 secondes dans l'espace UEMOA.",
   'concerne': "122 institutions sont concernées : 59 banques, 9 EME, 11 SFD et 1 Établissement de Paiement dans les 8 pays UEMOA.",
-  'sanction': "Les institutions non connectées au 30 juin 2026 s'exposent à des sanctions administratives et une suspension d'agrément.",
+  'sanction': "Les institutions non connectées au 30 Septembre 2026 (EME) & 30 Juin 2027 (SFD) s'exposent à des sanctions administratives et une suspension d'agrément.",
   'delai':    "Une intégration complète prend 3 à 6 semaines. L'offre Gold afrIAgenesis® peut la ramener à 15 jours ouvrables.",
-  'cout':     "Offres dès 250 000 FCFA (Bronze), 750 000 FCFA (Gold), 1 500 000 FCFA (Platinum).",
+  'cout':     "Offres dès 150 000 FCFA (Bronze), 500 000 FCFA (Gold), 750 000 FCFA (Platinum).",
   'mtls':     "Oui, mTLS est obligatoire. Il requiert un certificat client avec votre clientId obtenu sur developer.pispi.bceao.int.",
   'default':  "Contactez notre équipe : +229 01 61 10 73 73 ou lanickconsult@gmail.com.",
 };

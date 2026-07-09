@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Séquence H.E.I.T — AfrIA Marketing Team™</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--noir:#0D0D0D;--blanc:#FAFAFA;--vert:#00C853;--vert-dark:#007E33;--gold:#FFB300;--gris:#6B6B6B;--gris-lt:#E8E8E8;--fond:#F4F4F2;--rouge:#E53935}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Space Grotesk',sans-serif;background:var(--fond);color:var(--noir);padding:40px 24px;max-width:800px;margin:0 auto}
+.header{background:var(--noir);color:var(--blanc);padding:36px 40px;margin-bottom:40px}
+.header-label{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--vert);margin-bottom:12px}
+.header h1{font-size:26px;font-weight:700;line-height:1.25;margin-bottom:12px}
+.header h1 span{color:var(--gold)}
+.header-sub{font-size:13px;color:#9E9E9E;line-height:1.6}
+.badge-row{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.badge{font-family:'Space Mono',monospace;font-size:10px;padding:5px 12px;border:1px solid #333;color:#9E9E9E;letter-spacing:.08em}
+.badge.active{border-color:var(--vert);color:var(--vert)}
+.framework{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:40px}
+.fw-block{background:var(--blanc);padding:16px 14px;border-top:3px solid var(--gris-lt)}
+.fw-block.h{border-top-color:var(--rouge)}.fw-block.e{border-top-color:var(--gold)}.fw-block.i{border-top-color:var(--vert)}.fw-block.t{border-top-color:#2196F3}
+.fw-letter{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;margin-bottom:4px}
+.fw-block.h .fw-letter{color:var(--rouge)}.fw-block.e .fw-letter{color:var(--gold)}.fw-block.i .fw-letter{color:var(--vert)}.fw-block.t .fw-letter{color:#2196F3}
+.fw-name{font-size:11px;font-weight:600;margin-bottom:2px}.fw-desc{font-size:10px;color:var(--gris);line-height:1.4}
+.post-card{background:var(--blanc);margin-bottom:28px;border-left:4px solid var(--gris-lt)}
+.post-card.jour1{border-left-color:var(--rouge)}.post-card.jour2{border-left-color:var(--gold)}.post-card.jour3{border-left-color:var(--vert)}.post-card.jour4{border-left-color:#2196F3}.post-card.jour5{border-left-color:#9C27B0}
+.post-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--gris-lt)}
+.post-meta{display:flex;align-items:center;gap:12px}
+.post-num{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--gris)}
+.post-tag{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:3px 10px;font-weight:700}
+.jour1 .post-tag{background:#FFEBEE;color:var(--rouge)}.jour2 .post-tag{background:#FFF8E1;color:#E65100}.jour3 .post-tag{background:#E8F5E9;color:var(--vert-dark)}.jour4 .post-tag{background:#E3F2FD;color:#1565C0}.jour5 .post-tag{background:#F3E5F5;color:#6A1B9A}
+.post-objectif{font-family:'Space Mono',monospace;font-size:9px;color:var(--gris);letter-spacing:.06em}
+.post-body{padding:24px 20px}
+.annotation{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--gris);background:var(--fond);padding:2px 8px;display:inline-block;margin-bottom:6px}
+.ann-h{color:var(--rouge)}.ann-e{color:#E65100}.ann-i{color:var(--vert-dark)}.ann-t{color:#1565C0}
+.post-texte{font-size:14px;line-height:1.75;color:var(--noir);white-space:pre-line;margin-bottom:8px}
+.post-texte strong{font-weight:700}.post-texte em{font-style:italic;color:var(--gris)}
+.segment{margin-bottom:20px;padding-bottom:20px;border-bottom:1px dashed var(--gris-lt)}
+.segment:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.cta-block{background:var(--noir);color:var(--blanc);padding:16px 20px;margin-top:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.cta-text{font-size:13px;font-weight:600}
+.cta-wa{background:var(--vert);color:var(--noir);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:8px 16px;letter-spacing:.08em;white-space:nowrap}
+.tip{background:#FFF8E1;border-left:3px solid var(--gold);padding:12px 16px;margin-top:16px;font-size:11px;color:#5D4037;line-height:1.6}
+.tip strong{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:4px;color:#E65100}
+.section-title{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gris);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--gris-lt)}
+.systeme{background:var(--noir);padding:32px 36px;margin-top:40px;color:var(--blanc)}
+.systeme h2{font-size:18px;font-weight:700;margin-bottom:24px;color:var(--gold)}
+.funnel{display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
+.funnel-step{background:#1A1A1A;padding:16px 12px;text-align:center}
+.funnel-step-num{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--vert);display:block;margin-bottom:6px}
+.funnel-step-label{font-size:10px;color:#9E9E9E;line-height:1.4}
+.funnel-step-canal{font-family:'Space Mono',monospace;font-size:8px;color:var(--gold);margin-top:6px;display:block}
+@media(max-width:600px){.framework{grid-template-columns:repeat(2,1fr)}.funnel{grid-template-columns:repeat(2,1fr)}body{padding:20px 16px}.header{padding:24px 20px}}
+</style>
+</head>
+<body>
+<div class="header">
+<div class="header-label">Crésus Lanick × Dan Martell H.E.I.T Framework</div>
+<h1>5 posts LinkedIn pour vendre<br><span>AfrIA Marketing Team™</span></h1>
+<div class="header-sub">Une séquence complète — 1 post par jour, 5 jours, un entonnoir de vente complet.<br>Audience → Offre → CTA WhatsApp. Aucun post ne vend seul. Ensemble, ils convertissent.</div>
+<div class="badge-row">
+<div class="badge active">49 900 FCFA/mois</div><div class="badge active">89 900 FCFA/mois</div><div class="badge active">199 000 FCFA/mois</div>
+<div class="badge">WhatsApp +229 01 61 10 73 73</div><div class="badge">LinkedIn : Crésus Lanick</div>
+</div>
+</div>
+<div class="section-title">Le framework appliqué — H.E.I.T</div>
+<div class="framework">
+<div class="fw-block h"><div class="fw-letter">H</div><div class="fw-name">Hook</div><div class="fw-desc">Tu as 2 secondes. Arrêter le scroll ou mourir.</div></div>
+<div class="fw-block e"><div class="fw-letter">E</div><div class="fw-name">Explain</div><div class="fw-desc">Rendre le problème plus grand qu'ils pensaient.</div></div>
+<div class="fw-block i"><div class="fw-letter">I</div><div class="fw-name">Illustrate</div><div class="fw-desc">Leur histoire. Pas la tienne. Ils se voient dedans.</div></div>
+<div class="fw-block t"><div class="fw-letter">T</div><div class="fw-name">Teach</div><div class="fw-desc">Une chose. Une action. Pas 10 étapes.</div></div>
+</div>
+<div class="section-title" style="margin-top:40px">Post 01/05 — Lundi — Hook Contrariant</div>
+<div class="post-card jour1">
+<div class="post-header"><div class="post-meta"><span class="post-num">01</span><span class="post-tag">HOOK CONTRARIANT</span></div><div class="post-objectif">Objectif : arrêter le scroll — créer le choc</div></div>
+<div class="post-body">
+<div class="segment"><div class="annotation ann-h">H — Hook</div><div class="post-texte"><strong>Ton concurrent vient de publier 3 fois aujourd'hui.
+Toi, la dernière fois que tu as posté, c'était il y a 3 semaines.</strong>
+
+Il ne travaille pas plus que toi.
+Il a juste une équipe que tu n'as pas encore.</div></div>
+<div class="segment"><div class="annotation ann-e">E — Explain</div><div class="post-texte">Ce n'est pas un problème de temps.
+Ce n'est pas un problème de talent.
+C'est un problème de système.
+
+En Afrique de l'Ouest, 94 % des PME publient moins d'une fois par semaine sur LinkedIn.
+Et pourtant, leurs clients sont là. Chaque jour. En train de lire quelqu'un d'autre.
+
+<em>Pendant que tu penses à quoi écrire, ton concurrent a déjà publié et reçu 3 messages privés.</em></div></div>
+<div class="segment"><div class="annotation ann-i">I — Illustrate</div><div class="post-texte">Un client m'a dit récemment :
+<em>"Crésus, je sais que je dois publier. Mais entre les clients, les réunions, les fournisseurs — je n'ai plus rien dans le réservoir."</em>
+
+Je lui ai posé une question simple :
+<strong>"Et si tu n'avais plus jamais à écrire seul ?"</strong></div></div>
+<div class="segment"><div class="annotation ann-t">T — Teach</div><div class="post-texte">Ce qu'il a découvert cette semaine :
+5 agents IA spécialisés travaillent 24h/24 à sa place.
+Le Stratège. Le Créateur. Le Designer. L'Analyste. Le CMO.
+
+Il approuve. Ils publient.
+Résultat : 3 posts cette semaine. 0 minute de rédaction.
+
+C'est AfrIA Marketing Team™.
+Et ça commence à <strong>49 900 FCFA/mois.</strong></div></div>
+<div class="cta-block"><div class="cta-text">Tu veux voir comment ça marche pour ton secteur ?</div><div class="cta-wa">WhatsApp → +229 01 61 10 73 73</div></div>
+<div class="tip"><strong>Conseil publication</strong>Poste entre 7h–9h ou 12h–13h (WAT). Hashtags dans le 1er commentaire. Réponds aux commentaires dans les 30 premières minutes.</div>
+</div>
+</div>
+<div class="section-title">Post 02/05 — Mardi — Context Hook Éducatif</div>
+<div class="post-card jour2">
+<div class="post-header"><div class="post-meta"><span class="post-num">02</span><span class="post-tag">CONTEXT HOOK — ÉDUCATIF</span></div><div class="post-objectif">Objectif : crédibilité — ils apprennent quelque chose de réel</div></div>
+<div class="post-body">
+<div class="segment"><div class="annotation ann-h">H — Hook</div><div class="post-texte"><strong>J'ai analysé 50 PME en Afrique de l'Ouest.
+Voici ce que j'ai trouvé sur leur marketing digital.</strong>
+
+(Ce n'est pas flatteur.)</div></div>
+<div class="segment"><div class="annotation ann-e">E — Explain</div><div class="post-texte">La majorité poste 1 à 2 fois par mois.
+Aucune cohérence de message.
+Zéro stratégie de conversion.
+Et quand on leur demande pourquoi : <em>"On n'a pas le temps."</em>
+
+Leurs clients prennent des décisions en lisant du contenu.
+Ce contenu que vous ne publiez pas — quelqu'un d'autre le publie.
+Et c'est lui qu'ils appellent.</div></div>
+<div class="segment"><div class="annotation ann-i">I — Illustrate</div><div class="post-texte">Ce que fait une équipe marketing complète en 30 jours :
+→ 12 à 16 posts stratégiques
+→ 4 à 6 analyses de performance
+→ Un calendrier éditorial vivant
+
+Coût d'une équipe humaine : 800 000 à 1 500 000 FCFA/mois minimum.
+Coût d'AfrIA Marketing Team™ : <strong>à partir de 49 900 FCFA/mois.</strong>
+Même travail. Même résultat. Sans les charges sociales.</div></div>
+<div class="segment"><div class="annotation ann-t">T — Teach</div><div class="post-texte">Le marketing ne manque pas de talent en Afrique.
+Il manque de <strong>système</strong>.
+
+Un système qui tourne sans toi.
+Qui publie même quand tu es en réunion.
+Qui analyse même quand tu dors.
+
+C'est ça, AfrIA Marketing Team™.
+5 agents. 1 équipe. 0 recrutement.</div></div>
+<div class="cta-block"><div class="cta-text">Je t'explique les 5 agents en 10 minutes. Gratuit.</div><div class="cta-wa">WhatsApp → +229 01 61 10 73 73</div></div>
+<div class="tip"><strong>Conseil publication</strong>Fonctionne bien avec un visuel tableau en image jointe. Sinon, 3 lignes vides entre paragraphes pour l'aération mobile.</div>
+</div>
+</div>
+<div class="section-title">Post 03/05 — Mercredi — Intrigue Hook Preuve</div>
+<div class="post-card jour3">
+<div class="post-header"><div class="post-meta"><span class="post-num">03</span><span class="post-tag">INTRIGUE HOOK — PREUVE</span></div><div class="post-objectif">Objectif : preuve concrète — ils y croient</div></div>
+<div class="post-body">
+<div class="segment"><div class="annotation ann-h">H — Hook</div><div class="post-texte"><strong>Ce post a été écrit par une IA.
+Et tu ne l'aurais pas su si je ne te l'avais pas dit.</strong></div></div>
+<div class="segment"><div class="annotation ann-e">E — Explain</div><div class="post-texte">Depuis 3 semaines, je teste AfrIA Marketing Team™ sur mon propre compte.
+
+5 agents IA travaillent en simultané :
+→ <strong>Le Stratège</strong> définit le sujet et l'angle
+→ <strong>Le Créateur</strong> rédige le contenu
+→ <strong>Le Designer</strong> propose le visuel
+→ <strong>L'Analyste</strong> mesure la performance
+→ <strong>Le CMO IA</strong> coordonne et ajuste
+
+Je valide. Je publie. Temps passé par post : <strong>moins de 4 minutes.</strong></div></div>
+<div class="segment"><div class="annotation ann-i">I — Illustrate</div><div class="post-texte">Le système ne remplace pas ta voix.
+Il la libère.
+
+Avant : 2h pour écrire un post. Résultat incertain.
+Après : 4 minutes pour valider. Résultat cohérent.
+
+La différence ? La <strong>régularité</strong>.
+En marketing, la régularité bat le génie.</div></div>
+<div class="segment"><div class="annotation ann-t">T — Teach</div><div class="post-texte">3 offres. 1 décision.
+Bronze 49 900 FCFA → Silver 89 900 FCFA → Gold 199 000 FCFA/mois.</div></div>
+<div class="cta-block"><div class="cta-text">Quelle offre correspond à ta situation ? On en parle.</div><div class="cta-wa">WhatsApp → +229 01 61 10 73 73</div></div>
+<div class="tip"><strong>Conseil publication</strong>Génère des "Vraiment une IA ?" — réponds et invite à WhatsApp. Meilleur post de qualification.</div>
+</div>
+</div>
+<div class="section-title">Post 04/05 — Jeudi — Teach Pur</div>
+<div class="post-card jour4">
+<div class="post-header"><div class="post-meta"><span class="post-num">04</span><span class="post-tag">TEACH PURE — VALEUR BRUTE</span></div><div class="post-objectif">Objectif : autorité — ils partagent, ils sauvegardent</div></div>
+<div class="post-body">
+<div class="segment"><div class="annotation ann-h">H — Hook</div><div class="post-texte"><strong>Les 5 erreurs de contenu que font 9 PME africaines sur 10.
+(Et comment les corriger aujourd'hui.)</strong></div></div>
+<div class="segment"><div class="annotation ann-e">E + I + T combinés</div><div class="post-texte"><strong>Erreur 1 : Parler de toi, pas pour eux.</strong>
+"Notre entreprise propose..." → Personne ne s'en fiche.
+
+<strong>Erreur 2 : Publier quand tu y penses.</strong>
+3 posts/semaine médiocres > 1 post/mois brillant.
+
+<strong>Erreur 3 : Aucun appel à l'action.</strong>
+Chaque post doit inviter à une action précise.
+
+<strong>Erreur 4 : Copier les grandes marques.</strong>
+Ta force : la proximité. L'authenticité. L'Afrique.
+
+<strong>Erreur 5 : Tout faire seul.</strong>
+Le marketing n'est pas une tâche. C'est un département.</div></div>
+<div class="segment"><div class="annotation ann-t">T — La leçon</div><div class="post-texte">Le contenu ne scale pas si tu es le seul à le produire.
+La solution : un <strong>système</strong> qui travaille sans toi.
+
+C'est AfrIA Marketing Team™. 5 agents IA. Automatique.
+
+<em>Sauvegarde ce post. Partage-le à un entrepreneur qui en a besoin.</em></div></div>
+<div class="cta-block"><div class="cta-text">Tu veux corriger ces 5 erreurs maintenant ?</div><div class="cta-wa">WhatsApp → +229 01 61 10 73 73</div></div>
+<div class="tip"><strong>Conseil publication</strong>Fort potentiel de partage. Terminer par "Laquelle de ces 5 erreurs te coûte le plus ?" = qualifications directes.</div>
+</div>
+</div>
+<div class="section-title">Post 05/05 — Vendredi — Closing</div>
+<div class="post-card jour5">
+<div class="post-header"><div class="post-meta"><span class="post-num">05</span><span class="post-tag">CLOSING — OFFRE DIRECTE</span></div><div class="post-objectif">Objectif : convertir les indécis de la semaine</div></div>
+<div class="post-body">
+<div class="segment"><div class="annotation ann-h">H — Hook</div><div class="post-texte"><strong>Je cherche 5 entrepreneurs en Afrique de l'Ouest
+qui veulent tester AfrIA Marketing Team™ ce mois-ci.</strong>
+
+Pas 50. Pas 100. Cinq.</div></div>
+<div class="segment"><div class="annotation ann-e">E — Explain</div><div class="post-texte">Pourquoi seulement 5 ?
+
+Parce que je veux m'assurer que chaque client obtient un résultat visible dans les 30 premiers jours.
+Pas une promesse. Un résultat.
+
+Si au bout de 30 jours tu ne vois pas la différence — tu ne continues pas. Simple.</div></div>
+<div class="segment"><div class="annotation ann-i">I — Illustrate</div><div class="post-texte">Bronze <strong>49 900 FCFA/mois</strong> : 5 agents IA, stratégie éditoriale, rédaction, analyse performance, recommandations.
+
+Silver <strong>89 900 FCFA/mois</strong> : + visuels, design, multi-plateformes.
+
+Gold <strong>199 000 FCFA/mois</strong> : + stratégie croissance 90 jours, reporting exécutif mensuel.</div></div>
+<div class="segment"><div class="annotation ann-t">T — La décision</div><div class="post-texte">En Afrique, on dit : <em>"Seul on va vite. Ensemble on va loin."</em>
+
+AfrIA Marketing Team™, c'est ton équipe. Sans les contraintes d'une équipe.
+
+<strong>5 places. Ce mois-ci. Première arrivée, premier servi.</strong></div></div>
+<div class="cta-block"><div class="cta-text">Écris "ÉQUIPE" sur WhatsApp pour réserver ta place.</div><div class="cta-wa">WhatsApp → +229 01 61 10 73 73</div></div>
+<div class="tip"><strong>Conseil publication</strong>La rareté doit être réelle. Publier entre 17h–19h vendredi. Si +5 leads sérieux : liste d'attente.</div>
+</div>
+</div>
+<div class="systeme">
+<h2>Le Système Vente Complet</h2>
+<div class="funnel">
+<div class="funnel-step"><span class="funnel-step-num">01</span><div class="funnel-step-label">Post LinkedIn stoppe le scroll</div><span class="funnel-step-canal">LinkedIn</span></div>
+<div class="funnel-step"><span class="funnel-step-num">02</span><div class="funnel-step-label">CTA WhatsApp dans chaque post</div><span class="funnel-step-canal">+229 01 61 10 73 73</span></div>
+<div class="funnel-step"><span class="funnel-step-num">03</span><div class="funnel-step-label">Message "ÉQUIPE" → réponse &lt; 2h</div><span class="funnel-step-canal">WhatsApp</span></div>
+<div class="funnel-step"><span class="funnel-step-num">04</span><div class="funnel-step-label">Démo 10 min + 3 offres</div><span class="funnel-step-canal">Appel / Visio</span></div>
+<div class="funnel-step"><span class="funnel-step-num">05</span><div class="funnel-step-label">Paiement Moneroo MTN/Moov/VISA</div><span class="funnel-step-canal">Moneroo</span></div>
+</div>
+</div>
+</body>
+</html>
