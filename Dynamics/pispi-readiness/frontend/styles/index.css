@@ -239,15 +239,15 @@ h1 em {
 }
 
 .alert-banner {
-  background:    rgba(239, 68, 68, 0.05);
-  border:        1px solid rgba(239, 68, 68, 0.3);
+  background:    var(--warning-bg);
+  border:        0.01rem solid var(--border);
   border-radius: var(--radius);
   padding:       1.5rem 2rem;
   margin:        4rem 0;
 }
 
 .alert-banner h3 {
-  color:          var(--danger);
+  color:          var(--warning);
   margin-bottom:  0.5rem;
   font-size:      0.85rem;
   text-transform: uppercase;
