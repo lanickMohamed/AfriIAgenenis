@@ -1,0 +1,143 @@
+
+  :root{
+    --ink:#16233E;
+    --ink-soft:#2C3B5C;
+    --gold:#C89B3C;
+    --gold-soft:#E8D2A0;
+    --emerald:#0E7C6B;
+    --ivory:#FAF7F0;
+    --ivory-deep:#F1ECDF;
+    --line:#E3DCC9;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--ivory);
+    color:var(--ink);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-0.01em}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--emerald);
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+  a{color:inherit;text-decoration:none}
+
+  /* NAV */
+  nav{position:sticky;top:0;z-index:50;background:rgba(250,247,240,0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .logo{font-family:'Fraunces',serif;font-weight:600;font-size:1.15rem}
+  .logo img{
+    width: 40px;
+    height: 40px;
+    border-radius: 100%;
+  }
+  .logo em{font-style:normal;color:var(--emerald)}
+  .nav-links{display:none;gap:28px;font-size:0.9rem}
+  .nav-links a:hover{color:var(--emerald)}
+  .nav-cta{background:var(--ink);color:var(--ivory);padding:10px 20px;border-radius:2px;font-size:0.85rem;font-weight:500;white-space:nowrap}
+  @media(min-width:820px){.nav-links{display:flex}}
+
+  /* STATUS BAR */
+  .status-bar{background:var(--ink);color:var(--ivory);font-family:'IBM Plex Mono',monospace;font-size:0.72rem;letter-spacing:0.05em;text-align:center;padding:7px 16px}
+  .status-bar b{color:var(--gold-soft)}
+
+  /* HERO */
+  .hero{position:relative;padding:88px 0 72px;overflow:hidden;border-bottom:1px solid var(--line)}
+  .hero-grid{display:grid;gap:48px}
+  @media(min-width:940px){.hero-grid{grid-template-columns:1.15fr 0.85fr;align-items:center}}
+  .hero h1{font-size:clamp(2.1rem,5vw,3.4rem);line-height:1.08;margin:18px 0 22px}
+  .hero h1 .accent{color:var(--emerald)}
+  .hero p.lede{font-size:1.08rem;color:var(--ink-soft);max-width:52ch;margin-bottom:32px}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:14px}
+  .btn-primary{background:var(--emerald);color:var(--ivory);padding:14px 26px;border-radius:2px;font-weight:500;font-size:0.95rem;display:inline-flex;align-items:center;gap:8px;transition:transform .2s ease, background .2s ease}
+  .btn-primary:hover{background:var(--ink);transform:translateY(-2px)}
+  .btn-ghost{border:1px solid var(--ink);padding:14px 26px;border-radius:2px;font-weight:500;font-size:0.95rem;transition:all .2s ease}
+  .btn-ghost:hover{background:var(--ink);color:var(--ivory)}
+
+  /* corridor signature graphic */
+  .corridor-card{background:var(--ink);border-radius:4px;padding:32px;color:var(--ivory);position:relative;min-height:340px;overflow:hidden}
+  .corridor-card .eyebrow{color:var(--gold-soft)}
+  .corridor-card h3{font-size:1.3rem;margin:10px 0 24px;color:var(--ivory)}
+  .node-row{display:flex;flex-direction:column;gap:0;position:relative;z-index:2}
+  .node{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px dashed rgba(250,247,240,0.18);font-family:'IBM Plex Mono',monospace;font-size:0.82rem}
+  .node:last-child{border-bottom:none}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0}
+  .node .city{color:var(--ivory);font-weight:500}
+  .node .tag{margin-left:auto;color:rgba(250,247,240,0.55);font-size:0.72rem}
+
+  /* MARQUEE — langues, pas décoratif */
+  .marquee-wrap{background:var(--ivory-deep);border-bottom:1px solid var(--line);overflow:hidden;padding:16px 0}
+  .marquee-track{display:flex;gap:56px;white-space:nowrap;animation:scroll 32s linear infinite;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;letter-spacing:0.03em;color:var(--ink-soft)}
+  .marquee-track span::after{content:"·";margin-left:56px;color:var(--gold)}
+  @keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+  section{padding:76px 0;scroll-margin-top:88px}
+  .section-head{max-width:640px;margin-bottom:44px}
+  .section-head h2{font-size:clamp(1.6rem,3.4vw,2.3rem);margin-top:10px}
+  .section-head p{color:var(--ink-soft);margin-top:14px}
+
+  /* VISION */
+  .vision-grid{display:grid;gap:20px}
+  @media(min-width:760px){.vision-grid{grid-template-columns:repeat(3,1fr)}}
+  .vcard{border:1px solid var(--line);background:#fff;padding:26px;border-radius:3px;transition:border-color .2s ease}
+  .vcard:hover{border-color:var(--emerald)}
+  .vcard .num{font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--gold);display:block;margin-bottom:12px}
+  .vcard h3{font-size:1.08rem;margin-bottom:8px}
+  .vcard p{font-size:0.92rem;color:var(--ink-soft)}
+
+  /* SERVICES */
+  .services-list{border-top:1px solid var(--line)}
+  .srow{display:grid;grid-template-columns:1fr;gap:6px;padding:26px 0;border-bottom:1px solid var(--line);align-items:baseline}
+  @media(min-width:760px){.srow{grid-template-columns:220px 1fr}}
+  .srow h4{font-size:1.05rem}
+  .srow p{color:var(--ink-soft);font-size:0.92rem;max-width:56ch}
+
+  /* LANGUAGES */
+  .lang-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  @media(min-width:760px){.lang-grid{grid-template-columns:repeat(3,1fr)}}
+  .lang-tile{border:1px solid var(--line);padding:20px;border-radius:3px;background:#fff}
+  .lang-tile .zone{font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--emerald);text-transform:uppercase;letter-spacing:0.08em}
+  .lang-tile h4{margin-top:6px;font-size:1.15rem}
+
+  /* INDUSTRIES */
+  .ind-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+  @media(min-width:760px){.ind-grid{grid-template-columns:repeat(4,1fr)}}
+  .ind-tile{background:var(--ivory);padding:24px 18px;font-size:0.92rem;font-weight:500}
+
+  /* FAQ */
+  details{border-bottom:1px solid var(--line);padding:18px 0}
+  summary{cursor:pointer;font-weight:600;font-size:1rem;list-style:none;display:flex;justify-content:space-between;align-items:center}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";font-family:'IBM Plex Mono',monospace;color:var(--gold);font-size:1.2rem}
+  details[open] summary::after{content:"–"}
+  details p{margin-top:12px;color:var(--ink-soft);font-size:0.94rem;max-width:64ch}
+
+  /* PROVERB */
+  .proverb{background:var(--ink);color:var(--ivory);text-align:center;padding:64px 24px}
+  .proverb blockquote{font-family:'Fraunces',serif;font-size:clamp(1.3rem,3vw,1.9rem);max-width:720px;margin:0 auto 14px;font-style:italic}
+  .proverb cite{font-family:'IBM Plex Mono',monospace;font-size:0.75rem;letter-spacing:0.08em;color:var(--gold-soft);font-style:normal}
+
+  /* CONTACT */
+  .contact-grid{display:grid;gap:40px}
+  @media(min-width:900px){.contact-grid{grid-template-columns:1fr 1fr}}
+  .contact-info .line{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);font-size:0.94rem}
+  .contact-info .k{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:var(--emerald);text-transform:uppercase;letter-spacing:0.08em;width:100px;flex-shrink:0;padding-top:2px}
+  form{display:flex;flex-direction:column;gap:14px}
+  input,textarea,select{border:1px solid var(--line);background:#fff;padding:13px 14px;font-family:inherit;font-size:0.94rem;border-radius:2px}
+  input:focus,textarea:focus,select:focus{outline:2px solid var(--emerald);outline-offset:1px}
+  label{font-size:0.8rem;color:var(--ink-soft);margin-bottom:-8px}
+  button.submit{background:var(--emerald);color:var(--ivory);padding:14px;font-weight:600;border:none;border-radius:2px;cursor:pointer;font-size:0.95rem}
+  button.submit:hover{background:var(--ink)}
+  .form-note{font-size:0.78rem;color:var(--ink-soft)}
+
+  footer{border-top:1px solid var(--line);padding:40px 0;font-size:0.82rem;color:var(--ink-soft)}
+  footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
+
+  @media (prefers-reduced-motion:reduce){.marquee-track{animation:none}}
