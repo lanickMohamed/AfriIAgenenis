@@ -337,7 +337,7 @@ function generatePDF() {
       y += 8;
     });
 
-    // Cadre et séparateurs verticaux de la table
+    
     doc.setDrawColor(...LINE); doc.setLineWidth(0.4);
     doc.rect(M, tableStart, tW, y - tableStart);
     doc.setDrawColor(...HAIRLINE); doc.setLineWidth(0.3);
@@ -355,9 +355,28 @@ function generatePDF() {
 
     drawFooter(3);
 
+  
     const filename = 'PISPI-Rapport-' + institution.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 30) + '-' + now.getFullYear() + '.pdf';
+
     doc.save(filename);
-    closePdfModal();
+
+    const whatsappNumber = '2290161107373';
+
+    const waMessage =
+        `Bonjour, voici les resultats de mon test PI-SPI Readiness.` +
+        `%0A%0AInstitution : ${institution}` +
+        `%0AContact : ${contact}` +
+        `%0AType d'etablissement : ${type}` +
+        `%0APays / Zone : ${pays}` +
+        `%0AScore obtenu : ${score}/100` +
+        `%0AClassification : ${tierCode} (${tierLabel})` +
+        `%0AReference : ${refNum}` +
+        `%0A%0ALe rapport PDF vient d'etre telecharge sur mon appareil, je vous prie de trouver ci-joint le document.`;
+
+    setTimeout(() => {
+        window.open(`https://wa.me/${whatsappNumber}?text=${waMessage}`, '_blank');
+        closePdfModal();
+    }, 600);
   };
 
   fetch(logoUrl)
