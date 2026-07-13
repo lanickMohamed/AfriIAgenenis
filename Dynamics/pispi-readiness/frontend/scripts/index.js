@@ -208,8 +208,7 @@ function closePdfModal() { document.getElementById('pdf-modal').style.display = 
 
 const CHAT_KB = {
   'pi-spi':   "PI-SPI est l'infrastructure de paiement instantané BCEAO permettant des virements 24h/7j en moins de 5 secondes dans l'espace UEMOA.",
-  'concerne': "122 institutions sont concernées : 59 banques, 9 EME, 11 SFD et 1 Établissement de Paiement dans les 8 pays UEMOA.",
-  'sanction': "Les institutions non connectées au 30 Septembre 2026 (EME) & 30 Juin 2027 (SFD) s'exposent à des sanctions administratives et une suspension d'agrément.",
+  'concerne': "154 institutions sont concernées : 59 banques, 9 EME, 11 SFD et 1 Établissement de Paiement dans les 8 pays UEMOA.",
   'delai':    "Une intégration complète prend 3 à 6 semaines. L'offre Gold afrIAgenesis® peut la ramener à 15 jours ouvrables.",
   'cout':     "Offres dès 150 000 FCFA (Bronze), 500 000 FCFA (Gold), 750 000 FCFA (Platinum).",
   'mtls':     "Oui, mTLS est obligatoire. Il requiert un certificat client avec votre clientId obtenu sur developer.pispi.bceao.int.",
