@@ -358,9 +358,25 @@ function generatePDF() {
   
     const filename = 'PISPI-Rapport-' + institution.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 30) + '-' + now.getFullYear() + '.pdf';
 
-    doc.save(filename);
+
+
+    doc.save(filename); 
 
     const whatsappNumber = '2290161107373';
+
+    let reportLink = null;
+    try {
+      const pdfBase64 = doc.output('datauristring').split(',')[1]; 
+      const uploadRes = await fetch('/.netlify/functions/upload-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename, base64Pdf: pdfBase64 })
+      });
+      const uploadData = await uploadRes.json();
+      reportLink = uploadData.url;
+    } catch (e) {
+      console.error('Echec upload du rapport :', e);
+    }
 
     const waMessage =
         `Bonjour, voici les resultats de mon test PI-SPI Readiness.` +
@@ -371,7 +387,9 @@ function generatePDF() {
         `%0AScore obtenu : ${score}/100` +
         `%0AClassification : ${tierCode} (${tierLabel})` +
         `%0AReference : ${refNum}` +
-        `%0A%0ALe rapport PDF vient d'etre telecharge sur mon appareil, je vous prie de trouver ci-joint le document.`;
+        (reportLink
+          ? `%0A%0AVous pouvez visualiser le releve complet via ce lien : ${reportLink}`
+          : `%0A%0ALe rapport PDF vient d'etre telecharge sur mon appareil, je vous prie de trouver ci-joint le document.`);
 
     setTimeout(() => {
         window.open(`https://wa.me/${whatsappNumber}?text=${waMessage}`, '_blank');
