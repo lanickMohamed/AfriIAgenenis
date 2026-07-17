@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: afria-marketing-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_ORIGIN
+        value: https://afria-marketing-team.onrender.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: afriagenesis_db
+          property: connectionString
+      - key: PORT
+        value: 8080
+    healthCheckPath: /
+    healthCheckInterval: 300
+
+  - type: web
+    name: afria-marketing-team
+    runtime: static
+    rootDir: frontend/dist
+    buildCommand: npm install && npm run build
+    envVars: []
+    routes:
+      - type: rewrite
+        source: /<path:[^.].*>
+        destination: /index.html
+
+databases:
+  - name: afriagenesis_db
+    databaseName: afriagenesis_db
+    user: afriagenesis_user
+    region: ohio
