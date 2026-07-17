@@ -23,7 +23,7 @@ services:
     name: afria-marketing-team
     runtime: static
     rootDir: frontend/dist
-    buildCommand: cd frontend && npm install && npm run build
+    buildCommand: npm install && npm run build
     envVars: []
     routes:
       - type: rewrite
